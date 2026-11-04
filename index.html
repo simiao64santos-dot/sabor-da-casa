@@ -1,1 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sabor da Casa — Marmitaria & Restaurante</title>
+<meta name="description" content="Marmitas caseiras, pratos executivos e porções. Comida de verdade, feita no dia, entregue quentinha.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
 
+<!-- ============ TOPBAR ============ -->
+<div class="topbar">
+  <div class="container">
+    <div class="topbar-left">
+      <span class="status"><span class="dot" id="statusDot"></span><span id="statusTxt">Verificando…</span></span>
+      <span>🛵 Entrega em até 45 min</span>
+    </div>
+    <div class="topbar-left">
+      <span>📞 (11) 98765-4321</span>
+      <span>📍 Rua das Acácias, 128 — Centro</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <div class="container nav">
+    <a href="#" class="logo">
+      <span class="logo-mark">🍲</span>
+      <span>Sabor da Casa<small>Marmitaria</small></span>
+    </a>
+    <nav class="links" id="links">
+      <a href="#destaques">Destaques</a>
+      <a href="#cardapio">Cardápio</a>
+      <a href="#como">Como funciona</a>
+      <a href="#avaliacoes">Avaliações</a>
+      <a href="#info">Contato</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="burger" id="burger" aria-label="Abrir menu">☰</button>
+      <button class="btn-cart" id="btnCart" aria-label="Abrir carrinho">
+        🛒 <span class="txt">Carrinho</span> <span class="badge" id="badge">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">🥘 Feito hoje, do zero</span>
+      <h1>Comida de casa,<br>entregue <em>quentinha</em>.</h1>
+      <p class="lead">
+        Marmitas generosas, tempero de panela de ferro e aquele gostinho de almoço de domingo.
+        Monte seu pedido em segundos e receba em até 45 minutos.
+      </p>
+      <div class="hero-cta">
+        <a href="#cardapio" class="btn btn-primary">Ver cardápio 🍽️</a>
+        <button class="btn btn-ghost" onclick="abrirCarrinho()">Meu pedido</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>4,9</strong><span>Nota média (1.284 avaliações)</span></div>
+        <div class="stat"><strong>+12 mil</strong><span>Marmitas entregues</span></div>
+        <div class="stat"><strong>45 min</strong><span>Tempo médio de entrega</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="foto hero-foto">
+        <span class="emoji">🍛</span>
+      </div>
+      <div class="float-card">
+        <span class="ico">🔥</span>
+        <div><b>Prato do dia</b><small>Feijoada completa — R$ 39</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DESTAQUES ============ -->
+<section class="destaques" id="destaques">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">⭐ Os mais pedidos</span>
+      <h2>Saiu da panela agora</h2>
+      <p>Uma seleção do que a cozinha está preparando neste momento.</p>
+    </div>
+    <div class="cards-3" id="cardsDestaque"></div>
+  </div>
+</section>
+
+<!-- ============ CARDÁPIO ============ -->
+<section id="cardapio">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">📖 Cardápio</span>
+      <h2>Escolha o seu</h2>
+      <p>Tudo preparado no dia, com ingredientes frescos. Adicione ao carrinho e finalize pelo WhatsApp.</p>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<!-- ============ COMO FUNCIONA ============ -->
+<section class="como" id="como">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">⚡ Simples assim</span>
+      <h2>Como funciona</h2>
+      <p>Três passos entre você e o almoço resolvido.</p>
+    </div>
+    <div class="passos">
+      <div class="passo">
+        <div class="num">1</div>
+        <h3>Monte o pedido</h3>
+        <p>Escolha seus pratos no cardápio e adicione ao carrinho. Sem cadastro, sem complicação.</p>
+      </div>
+      <div class="passo">
+        <div class="num">2</div>
+        <h3>Confirme no WhatsApp</h3>
+        <p>Preencha nome e endereço, e envie o pedido direto para nossa cozinha pelo WhatsApp.</p>
+      </div>
+      <div class="passo">
+        <div class="num">3</div>
+        <h3>Receba quentinho</h3>
+        <p>Preparamos na hora e entregamos em até 45 minutos. Pague no Pix, cartão ou dinheiro.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AVALIAÇÕES ============ -->
+<section id="avaliacoes">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="eyebrow">💬 Quem prova, volta</span>
+      <h2>O que dizem por aí</h2>
+    </div>
+    <div class="depo-grid">
+      <div class="depo">
+        <div class="stars">★★★★★</div>
+        <p>“Peço quase todo dia no trabalho. A marmita grande serve eu e meu marido, e o tempero é igualzinho ao da minha mãe.”</p>
+        <div class="depo-autor">
+          <div class="avatar">CM</div>
+          <div><b>Camila Moreira</b><small>Cliente desde 2022</small></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="stars">★★★★★</div>
+        <p>“A feijoada de sábado é outro nível. Chega quente, bem embalada e o preço é justo. Virou tradição em casa.”</p>
+        <div class="depo-autor">
+          <div class="avatar">RS</div>
+          <div><b>Rodrigo Santos</b><small>Centro</small></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="stars">★★★★★</div>
+        <p>“Sou vegetariana e finalmente achei um lugar que não trata opção veg como favor. A marmita de grão-de-bico é incrível.”</p>
+        <div class="depo-autor">
+          <div class="avatar">JL</div>
+          <div><b>Juliana Lima</b><small>Vila Nova</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INFORMAÇÕES ============ -->
+<section class="info" id="info">
+  <div class="container">
+    <div class="sec-head">
+      <span class="eyebrow">📍 Onde estamos</span>
+      <h2>Horários e entrega</h2>
+    </div>
+    <div class="info-grid">
+      <div class="painel">
+        <h3>🕐 Horário de funcionamento</h3>
+        <p>Fechamos às segundas para descanso da equipe.</p>
+        <div class="horario"><b>Terça a Sexta</b><span>11h–15h · 18h–22h</span></div>
+        <div class="horario"><b>Sábado</b><span>11h–16h · 18h–23h</span></div>
+        <div class="horario"><b>Domingo</b><span>11h–16h</span></div>
+        <div class="horario"><b>Segunda</b><span class="fechado">Fechado</span></div>
+      </div>
+
+      <div class="painel">
+        <h3>🛵 Área de entrega</h3>
+        <p>Taxa fixa de R$ 6,00 — grátis em pedidos acima de R$ 80.</p>
+        <div class="lista-bairros">
+          <span class="bairro">Centro</span>
+          <span class="bairro">Vila Nova</span>
+          <span class="bairro">Jardim América</span>
+          <span class="bairro">Bela Vista</span>
+          <span class="bairro">Santa Rita</span>
+          <span class="bairro">São José</span>
+          <span class="bairro">Parque das Flores</span>
+          <span class="bairro">Alto da Serra</span>
+        </div>
+      </div>
+
+      <div class="painel">
+        <h3>📞 Fale com a gente</h3>
+        <p>Atendimento de terça a domingo.</p>
+        <div class="contato-linha"><span class="ico">📱</span><div><b>(11) 98765-4321</b><br><small style="color:var(--cinza)">WhatsApp e telefone</small></div></div>
+        <div class="contato-linha"><span class="ico">✉️</span><div><b>contato@sabordacasa.com.br</b><br><small style="color:var(--cinza)">Pedidos e parcerias</small></div></div>
+        <div class="contato-linha"><span class="ico">📍</span><div><b>Rua das Acácias, 128</b><br><small style="color:var(--cinza)">Centro — retirada no balcão</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo">
+          <span class="logo-mark">🍲</span>
+          <span>Sabor da Casa<small>Marmitaria</small></span>
+        </div>
+        <p style="max-width:36ch">Comida caseira feita com calma, ingredientes frescos e tempero de verdade. Desde 2018 no mesmo endereço.</p>
+      </div>
+      <div>
+        <h4>Navegar</h4>
+        <ul>
+          <li><a href="#destaques">Destaques</a></li>
+          <li><a href="#cardapio">Cardápio</a></li>
+          <li><a href="#como">Como funciona</a></li>
+          <li><a href="#avaliacoes">Avaliações</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <ul>
+          <li><a href="tel:+5511987654321">(11) 98765-4321</a></li>
+          <li><a href="mailto:contato@sabordacasa.com.br">contato@sabordacasa.com.br</a></li>
+          <li>Rua das Acácias, 128 — Centro</li>
+          <li>Ter a Dom · 11h às 22h</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copy">
+      <span>© <span id="ano"></span> Sabor da Casa. Todos os direitos reservados.</span>
+      <span>CNPJ 00.000.000/0001-00</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ CARRINHO ============ -->
+<div class="overlay" id="overlay" onclick="fecharCarrinho()"></div>
+<aside class="drawer" id="drawer" aria-label="Carrinho de compras">
+  <div class="drawer-head">
+    <h3>Seu pedido</h3>
+    <button class="close" onclick="fecharCarrinho()" aria-label="Fechar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot" style="display:none"></div>
+</aside>
+
+<div class="toast" id="toast">✅ Adicionado ao carrinho</div>
+
+<a class="wpp-float" href="https://wa.me/5511987654321" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-1.6-.8-2.7-1.4-3.8-3.2-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.9-1.4-1.3-3-1.3-4.5 0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.6 8.4-8.2 8.4z"/></svg>
+</a>
+
+<!-- Scripts -->
+<script src="assets/js/menu.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
