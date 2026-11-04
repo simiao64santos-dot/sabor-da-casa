@@ -333,6 +333,42 @@ footer .logo small{color:#8C7E6E}
 .wpp-float:hover{transform:scale(1.09)}
 .wpp-float svg{width:31px;height:31px;fill:#fff}
 
+/* ---------- PAINEL ADMIN ---------- */
+.admin-overlay {
+  position: fixed; inset: 0; background: rgba(30,22,14,.85); backdrop-filter: blur(5px);
+  z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.admin-overlay.on { display: flex; }
+.admin-panel {
+  background: var(--creme); width: min(1000px, 100%); max-height: 90vh;
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,.5); overflow: hidden;
+}
+.admin-head {
+  background: var(--carvao); color: #fff; padding: 15px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.admin-head h2 { font-size: 1.2rem; margin: 0; }
+.admin-body { padding: 20px; overflow-y: auto; }
+.admin-item {
+  background: #fff; border: 1px solid #ddd; border-radius: 10px;
+  padding: 15px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center;
+}
+.admin-item input, .admin-item select {
+  padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem;
+}
+.admin-item .in-nome { flex: 2; }
+.admin-item .in-preco { flex: 1; max-width: 100px; }
+.admin-item .in-cat { flex: 1; }
+.admin-item .in-tag { flex: 1; }
+.admin-item .in-desc { flex: 3; }
+.admin-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.btn-admin { padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-save { background: var(--verde); color: white; border: none; }
+.btn-export { background: var(--amarelo); color: #333; border: none; }
+.btn-add { background: var(--vermelho); color: white; border: none; }
+.btn-del { background: #f44336; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+
 /* ---------- RESPONSIVO ---------- */
 @media(max-width:940px){
   .hero-grid{grid-template-columns:1fr;gap:40px}
@@ -355,6 +391,8 @@ footer .logo small{color:#8C7E6E}
   .hero-cta .btn{flex:1;min-width:150px}
   .footer-grid{grid-template-columns:1fr;gap:30px}
   .topbar-left{gap:12px;font-size:.76rem}
+  .admin-item { flex-direction: column; align-items: stretch; }
+  .admin-item .in-preco { max-width: 100%; }
 }
 @media(max-width:420px){
   .menu-grid{grid-template-columns:1fr}
@@ -580,6 +618,8 @@ footer .logo small{color:#8C7E6E}
           <span>Sabor da Casa<small>Marmitaria</small></span>
         </div>
         <p style="max-width:36ch">Comida caseira feita com calma, ingredientes frescos e tempero de verdade. Desde 2018 no mesmo endereço.</p>
+        <!-- BOTÃO ADMIN DISCRETO -->
+        <button onclick="abrirAdmin()" style="margin-top: 20px; font-size: 0.75rem; color: #8C7E6E; text-decoration: underline;">Área do Lojista</button>
       </div>
       <div>
         <h4>Navegar</h4>
@@ -624,6 +664,26 @@ footer .logo small{color:#8C7E6E}
   <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-1.6-.8-2.7-1.4-3.8-3.2-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.5.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4 0-.1-.2-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.9-1.4-1.3-3-1.3-4.5 0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.6 8.4-8.2 8.4z"/></svg>
 </a>
 
+<!-- ============ PAINEL ADMIN ============ -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <div class="admin-head">
+      <h2>Painel do Lojista 🔐</h2>
+      <button onclick="fecharAdmin()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="admin-body">
+      <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Aqui você pode alterar os pratos. O código novo deve ser copiado e colado no seu `index.html` no GitHub.</p>
+      <div id="adminList"></div>
+      
+      <div class="admin-actions">
+        <button class="btn-admin btn-add" onclick="addNovoPrato()">+ Adicionar Prato</button>
+        <button class="btn-admin btn-save" onclick="salvarLocalStorage()">Salvar (Visualizar no Site)</button>
+        <button class="btn-admin btn-export" onclick="exportarCodigo()">Exportar Código (Copiar)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================================================
    CONFIGURAÇÃO
@@ -631,9 +691,10 @@ footer .logo small{color:#8C7E6E}
 const WHATSAPP = '5511987654321'; 
 const TAXA_ENTREGA = 6.00;
 const FRETE_GRATIS_A_PARTIR = 80.00;
+const SENHA_ADMIN = 'admin123';
 
 /* =========================================================
-   CARDÁPIO
+   CARDÁPIO PADRÃO
    ========================================================= */
 const CATEGORIAS = [
   { id: 'marmitas',   nome: 'Marmitas' },
@@ -643,7 +704,7 @@ const CATEGORIAS = [
   { id: 'sobremesas', nome: 'Sobremesas' }
 ];
 
-const MENU = [
+const MENU_PADRAO = [
   { id: 1,  cat:'marmitas', nome:'Marmita P', desc:'Arroz, feijão, 1 mistura, salada e farofa', preco:22.00, emoji:'🍱' },
   { id: 2,  cat:'marmitas', nome:'Marmita M', desc:'Arroz, feijão, 2 misturas, salada e farofa', preco:28.00, emoji:'🍛', tag:'Mais pedida', destaque:true },
   { id: 3,  cat:'marmitas', nome:'Marmita G', desc:'Arroz, feijão, 3 misturas, 2 acompanhamentos', preco:34.00, emoji:'🍲' },
@@ -667,6 +728,8 @@ const MENU = [
   { id: 21, cat:'sobremesas', nome:'Brigadeiro Gourmet', desc:'Unidade, chocolate belga', preco:5.00, emoji:'🍫' },
   { id: 22, cat:'sobremesas', nome:'Açaí 300ml', desc:'Com granola e banana', preco:16.00, emoji:'🫐' }
 ];
+
+let MENU = JSON.parse(localStorage.getItem('menu_custom')) || [...MENU_PADRAO];
 
 /* =========================================================
    LÓGICA DO SITE
@@ -904,6 +967,79 @@ function toast(msg){
   toastTimer = setTimeout(() => t.classList.remove('on'), 2200);
 }
 
+/* =========================================================
+   LÓGICA DO PAINEL ADMIN
+   ========================================================= */
+function abrirAdmin() {
+  const senha = prompt("Digite a senha de administrador:");
+  if (senha === SENHA_ADMIN) {
+    $('adminOverlay').classList.add('on');
+    renderAdmin();
+  } else if (senha !== null) {
+    alert("Senha incorreta!");
+  }
+}
+
+function fecharAdmin() {
+  $('adminOverlay').classList.remove('on');
+}
+
+function renderAdmin() {
+  const list = $('adminList');
+  list.innerHTML = MENU.map((p, index) => `
+    <div class="admin-item">
+      <input type="text" class="in-nome" value="${p.nome}" onchange="editarPrato(${index}, 'nome', this.value)">
+      <input type="number" class="in-preco" value="${p.preco}" step="0.01" onchange="editarPrato(${index}, 'preco', this.value)">
+      <select class="in-cat" onchange="editarPrato(${index}, 'cat', this.value)">
+        ${CATEGORIAS.map(c => `<option value="${c.id}" ${c.id === p.cat ? 'selected' : ''}>${c.nome}</option>`).join('')}
+      </select>
+      <input type="text" class="in-desc" value="${p.desc}" onchange="editarPrato(${index}, 'desc', this.value)">
+      <input type="text" class="in-tag" value="${p.tag || ''}" placeholder="Tag (opc)" onchange="editarPrato(${index}, 'tag', this.value)">
+      <label style="font-size:0.8rem; display:flex; align-items:center; gap:5px;">
+        <input type="checkbox" ${p.destaque ? 'checked' : ''} onchange="editarPrato(${index}, 'destaque', this.checked)"> Destaque
+      </label>
+      <button class="btn-del" onclick="deletarPrato(${index})">Excluir</button>
+    </div>
+  `).join('');
+}
+
+function editarPrato(index, campo, valor) {
+  MENU[index][campo] = valor;
+}
+
+function deletarPrato(index) {
+  if(confirm("Tem certeza que deseja excluir este prato?")) {
+    MENU.splice(index, 1);
+    renderAdmin();
+  }
+}
+
+function addNovoPrato() {
+  const novoId = MENU.length > 0 ? Math.max(...MENU.map(p => p.id)) + 1 : 1;
+  MENU.push({ id: novoId, cat: 'marmitas', nome: 'Novo Prato', desc: 'Descrição do prato', preco: 0, emoji: '🍽️', destaque: false, tag: '' });
+  renderAdmin();
+}
+
+function salvarLocalStorage() {
+  localStorage.setItem('menu_custom', JSON.stringify(MENU));
+  toast('✅ Cardápio salvo no navegador!');
+  renderDestaques();
+  renderMenu();
+  fecharAdmin();
+}
+
+function exportarCodigo() {
+  const codigo = "const MENU_PADRAO = " + JSON.stringify(MENU, null, 2) + ";";
+  navigator.clipboard.writeText(codigo).then(() => {
+    alert("✅ Código copiado para a área de transferência!\n\nAgora vá no seu GitHub, abra o index.html, e substitua a parte 'const MENU_PADRAO = [...]' pelo código que você acabou de copiar.");
+  }).catch(err => {
+    prompt("Copie o código abaixo e substitua no seu index.html:", codigo);
+  });
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
 $('btnCart').addEventListener('click', abrirCarrinho);
 $('burger').addEventListener('click', () => $('links').classList.toggle('on'));
 document.querySelectorAll('#links a').forEach(a =>
