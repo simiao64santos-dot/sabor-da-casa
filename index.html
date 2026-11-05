@@ -3,12 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <base href="/sabor-da-casa/">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Sabor da Casa — Marmitaria & Restaurante</title>
 <meta name="description" content="Marmitas caseiras, pratos executivos e porções. Comida de verdade, feita no dia, entregue quentinha.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- CONFIGURAÇÕES PWA (APLICATIVO) -->
+<meta name="theme-color" content="#B23A2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
+<link rel="manifest" id="pwa-manifest">
 
 <style>
 /* =========================================================
@@ -133,6 +140,10 @@ header{
 .foto .emoji{font-size:clamp(56px,9vw,96px);filter:drop-shadow(0 8px 14px rgba(120,60,0,.28));position:relative;z-index:1}
 .hero-foto{aspect-ratio:1/.92;font-size:clamp(80px,13vw,150px)}
 .hero-foto .emoji{font-size:clamp(90px,14vw,158px)}
+/* SUPORTE A IMAGENS REAIS */
+.foto img, .prato-emoji img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; z-index: 1; position: relative; }
+.foto::after { z-index: 2; } /* Listras em cima da imagem */
+
 .float-card{
   position:absolute;left:-14px;bottom:26px;
   background:#fff;border-radius:16px;padding:14px 18px;
@@ -169,7 +180,7 @@ section{padding:clamp(52px,7vw,88px) 0}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
 .preco{font-family:'Fraunces',serif;font-weight:900;font-size:1.28rem;color:var(--vermelho)}
 .tag{
-  position:absolute;top:12px;left:12px;z-index:2;
+  position:absolute;top:12px;left:12px;z-index:3;
   background:var(--carvao);color:var(--creme);
   font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
   padding:6px 12px;border-radius:999px;
@@ -195,7 +206,7 @@ section{padding:clamp(52px,7vw,88px) 0}
 .prato:hover{border-color:rgba(178,58,46,.28);box-shadow:0 14px 28px -20px rgba(43,33,24,.5);transform:translateY(-2px)}
 .prato-emoji{
   width:66px;height:66px;flex:none;border-radius:14px;display:grid;place-items:center;font-size:31px;
-  background:linear-gradient(150deg,#FFEBC8,#F7D49B);
+  background:linear-gradient(150deg,#FFEBC8,#F7D49B);overflow:hidden;position:relative;
 }
 .prato-info{flex:1;min-width:0}
 .prato-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
@@ -344,8 +355,6 @@ footer .logo small{color:#8C7E6E}
   color: #e2e8f0; opacity: 0; transition: opacity 0.3s ease;
 }
 #adminOverlay.on { display: flex; opacity: 1; }
-
-/* Header Admin */
 .admin-header {
   background: #1a1d24; padding: 15px 24px; display: flex; justify-content: space-between;
   align-items: center; border-bottom: 1px solid #2d3748;
@@ -354,8 +363,6 @@ footer .logo small{color:#8C7E6E}
 .admin-header h2 span { color: #F2B441; font-size: 1.5rem; }
 .admin-close { background: #2d3748; border: none; color: #a0aec0; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: grid; place-items: center; font-size: 18px; }
 .admin-close:hover { background: #e53e3e; color: #fff; }
-
-/* Layout Admin */
 .admin-layout { display: flex; flex: 1; overflow: hidden; }
 .admin-sidebar {
   width: 250px; background: #14161a; border-right: 1px solid #2d3748;
@@ -368,22 +375,16 @@ footer .logo small{color:#8C7E6E}
 }
 .admin-nav-btn:hover { background: #1a1d24; color: #e2e8f0; }
 .admin-nav-btn.active { background: rgba(242,180,65,0.1); color: #F2B441; border-left-color: #F2B441; }
-
 .admin-content { flex: 1; padding: 30px; overflow-y: auto; background: #0f1115; }
 .admin-section { display: none; animation: fadeIn 0.3s ease; }
 .admin-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 .admin-section h3 { font-size: 1.5rem; color: #f8fafc; margin-bottom: 20px; font-family: 'Fraunces', serif; }
 .admin-section p.subtitle { color: #718096; font-size: 0.9rem; margin-top: -15px; margin-bottom: 25px; }
-
-/* Dashboard Cards */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
 .stat-card { background: #1a1d24; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
 .stat-card span { font-size: 0.85rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 .stat-card strong { font-size: 2rem; color: #F2B441; font-weight: 800; font-family: 'Fraunces', serif; }
-
-/* Formulários e Listas */
 .admin-list { display: flex; flex-direction: column; gap: 15px; }
 .admin-card {
   background: #1a1d24; border: 1px solid #2d3748; border-radius: 12px;
@@ -396,14 +397,13 @@ footer .logo small{color:#8C7E6E}
 .admin-card input:focus, .admin-card select:focus, .admin-card textarea:focus { border-color: #F2B441; box-shadow: 0 0 0 3px rgba(242,180,65,0.1); }
 .admin-card .in-emoji { width: 60px; text-align: center; font-size: 1.5rem; padding: 5px; }
 .admin-card .in-nome { flex: 2; min-width: 150px; font-weight: 600; }
+.admin-card .in-img { flex: 2; min-width: 150px; color: #63b3ed; }
 .admin-card .in-preco { width: 100px; }
 .admin-card .in-cat { width: 140px; }
 .admin-card .in-desc { flex: 3; min-width: 200px; }
 .admin-card .in-tag { width: 120px; }
 .admin-card label { display: flex; align-items: center; gap: 8px; color: #a0aec0; font-size: 0.9rem; cursor: pointer; }
 .admin-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: #F2B441; cursor: pointer; }
-
-/* Botões Admin */
 .btn-admin {
   padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;
   transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; border: none;
@@ -416,38 +416,27 @@ footer .logo small{color:#8C7E6E}
 .btn-export:hover { background: #dd9c26; transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(242,180,65,0.5); }
 .btn-del { background: rgba(229,62,62,0.1); color: #fc8181; padding: 10px; border-radius: 8px; }
 .btn-del:hover { background: #e53e3e; color: #fff; }
-
-/* Configurações */
 .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .config-box { background: #1a1d24; border: 1px solid #2d3748; padding: 20px; border-radius: 12px; }
 .config-box label { display: block; color: #a0aec0; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .config-box input { width: 100%; background: #0f1115; border: 1px solid #2d3748; color: #e2e8f0; padding: 12px; border-radius: 8px; outline: none; }
 .config-box input:focus { border-color: #F2B441; }
-
-/* Responsivo Admin */
 @media(max-width: 768px) {
   .admin-layout { flex-direction: column; }
   .admin-sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 0; border-right: none; border-bottom: 1px solid #2d3748; }
   .admin-nav-btn { padding: 15px 20px; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
   .admin-nav-btn.active { border-left: none; border-bottom-color: #F2B441; }
   .admin-card { flex-direction: column; align-items: stretch; }
-  .admin-card .in-nome, .admin-card .in-preco, .admin-card .in-cat, .admin-card .in-desc, .admin-card .in-tag { width: 100%; max-width: 100%; }
+  .admin-card .in-nome, .admin-card .in-preco, .admin-card .in-cat, .admin-card .in-desc, .admin-card .in-tag, .admin-card .in-img { width: 100%; max-width: 100%; }
 }
 
-/* Responsivo Site */
 @media(max-width:940px){
   .hero-grid{grid-template-columns:1fr;gap:40px}
   .hero-visual{order:-1;max-width:460px;margin-inline:auto;width:100%}
   .footer-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:780px){
-  .links{
-    position:absolute;top:100%;left:0;right:0;
-    background:var(--creme);border-bottom:1px solid rgba(43,33,24,.12);
-    flex-direction:column;align-items:stretch;padding:12px;gap:2px;
-    box-shadow:0 20px 30px -22px rgba(43,33,24,.6);
-    display:none;
-  }
+  .links{position:absolute;top:100%;left:0;right:0;background:var(--creme);border-bottom:1px solid rgba(43,33,24,.12);flex-direction:column;align-items:stretch;padding:12px;gap:2px;box-shadow:0 20px 30px -22px rgba(43,33,24,.6);display:none;}
   .links.on{display:flex}
   .links a{padding:13px 16px;border-radius:10px}
   .burger{display:grid}
@@ -528,7 +517,7 @@ footer .logo small{color:#8C7E6E}
       </div>
     </div>
     <div class="hero-visual">
-      <div class="foto hero-foto">
+      <div class="foto hero-foto" id="hero-foto">
         <span class="emoji">🍛</span>
       </div>
       <div class="float-card">
@@ -779,7 +768,7 @@ footer .logo small{color:#8C7E6E}
       <!-- ABA 2: CARDÁPIO -->
       <section id="sec-menu" class="admin-section">
         <h3>Gerenciar Cardápio</h3>
-        <p class="subtitle">Adicione, edite ou remova pratos. As mudanças aparecem imediatamente no site.</p>
+        <p class="subtitle">Adicione, edite ou remova pratos. Cole links de imagens para deixar o site ainda mais profissional.</p>
         
         <div class="admin-list" id="admin-menu-list"></div>
         
@@ -838,7 +827,7 @@ footer .logo small{color:#8C7E6E}
           <ol style="color: #a0aec0; font-size: 0.95rem; line-height: 1.8; margin-left: 20px; margin-bottom: 25px;">
             <li>Clique no botão amarelo abaixo para copiar o código.</li>
             <li>Abra o arquivo <strong>index.html</strong> no seu GitHub e clique em ✏️ (Editar).</li>
-            <li>Procure por <code>const CONFIG_INICIAL</code> e <code>const MENU_PADRAO</code>.</li>
+            <li>Procure por <code>const CONFIG_INICIAL</code>, <code>const MENU_PADRAO</code> e <code>const CATEGORIAS_PADRAO</code>.</li>
             <li>Substitua aquelas linhas inteiras pelo código que você copiou.</li>
             <li>Clique em <strong>Commit changes</strong> e o site estará atualizado para todos!</li>
           </ol>
@@ -860,218 +849,43 @@ footer .logo small{color:#8C7E6E}
 const SENHA_ADMIN = 'admin123';
 
 const CONFIG_INICIAL = {
-  "nomeLoja": "Nil Simi ",
-  "whatsapp": "5519982483390",
-  "taxaEntrega": 6,
-  "freteGratis": 6
+  nomeLoja: 'Sabor da Casa',
+  whatsapp: '5511987654321',
+  taxaEntrega: 6.00,
+  freteGratis: 80.00
 };
 
 const MENU_PADRAO = [
-  {
-    "id": 1,
-    "cat": "marmitas",
-    "nome": "Marmita P",
-    "desc": "Arroz, feijão, 1 mistura, salada e farofa",
-    "preco": 22,
-    "emoji": "🍱"
-  },
-  {
-    "id": 2,
-    "cat": "executivos",
-    "nome": "PRATO PRONTO ",
-    "desc": "Tudo a que tem direito.",
-    "preco": "25.50",
-    "emoji": "🍛",
-    "tag": "Mais pedida",
-    "destaque": true
-  },
-  {
-    "id": 3,
-    "cat": "marmitas",
-    "nome": "Marmita G",
-    "desc": "Arroz, feijão, 3 misturas, 2 acompanhamentos",
-    "preco": 34,
-    "emoji": "🍲"
-  },
-  {
-    "id": 4,
-    "cat": "marmitas",
-    "nome": "Marmita Fit",
-    "desc": "Arroz integral, frango grelhado e legumes no vapor",
-    "preco": 30,
-    "emoji": "🥗",
-    "tag": "Saudável"
-  },
-  {
-    "id": 5,
-    "cat": "marmitas",
-    "nome": "Marmita Vegana",
-    "desc": "Arroz, feijão, grão-de-bico temperado e legumes assados",
-    "preco": 26,
-    "emoji": "🥦"
-  },
-  {
-    "id": 6,
-    "cat": "executivos",
-    "nome": "Feijoada Completa",
-    "desc": "Feijoada, arroz, couve refogada, farofa e laranja",
-    "preco": 39,
-    "emoji": "🫘",
-    "tag": "Sábado",
-    "destaque": true
-  },
-  {
-    "id": 7,
-    "cat": "executivos",
-    "nome": "Bife à Parmegiana",
-    "desc": "Bife empanado, molho de tomate, queijo, arroz e fritas",
-    "preco": 42,
-    "emoji": "🥩"
-  },
-  {
-    "id": 8,
-    "cat": "executivos",
-    "nome": "Strogonoff de Frango",
-    "desc": "Frango cremoso, arroz branco e batata palha",
-    "preco": 34,
-    "emoji": "🍄"
-  },
-  {
-    "id": 9,
-    "cat": "executivos",
-    "nome": "Costelinha com Mandioca",
-    "desc": "Costelinha cozida lentamente, mandioca e arroz",
-    "preco": 44,
-    "emoji": "🍖"
-  },
-  {
-    "id": 10,
-    "cat": "executivos",
-    "nome": "Frango à Passarinho",
-    "desc": "Frango frito crocante, arroz, feijão e salada",
-    "preco": 36,
-    "emoji": "🍗"
-  },
-  {
-    "id": 11,
-    "cat": "porcoes",
-    "nome": "Batata Frita",
-    "desc": "Porção individual, crocante e sequinha",
-    "preco": 18,
-    "emoji": "🍟"
-  },
-  {
-    "id": 12,
-    "cat": "porcoes",
-    "nome": "Frango à Passarinho (porção)",
-    "desc": "Serve 2 pessoas, com alho e limão",
-    "preco": 32,
-    "emoji": "🍗"
-  },
-  {
-    "id": 13,
-    "cat": "porcoes",
-    "nome": "Bolinho de Bacalhau",
-    "desc": "8 unidades com aioli de limão",
-    "preco": 26,
-    "emoji": "🐟"
-  },
-  {
-    "id": 14,
-    "cat": "porcoes",
-    "nome": "Pastel de Carne",
-    "desc": "6 unidades fritas na hora",
-    "preco": 20,
-    "emoji": "🥟"
-  },
-  {
-    "id": 15,
-    "cat": "bebidas",
-    "nome": "Refrigerante Lata",
-    "desc": "Coca-Cola, Guaraná ou Fanta — 350ml",
-    "preco": 6,
-    "emoji": "🥤"
-  },
-  {
-    "id": 16,
-    "cat": "bebidas",
-    "nome": "Suco Natural 500ml",
-    "desc": "Laranja, limão ou maracujá, feito na hora",
-    "preco": 9,
-    "emoji": "🧃"
-  },
-  {
-    "id": 17,
-    "cat": "bebidas",
-    "nome": "Água Mineral 500ml",
-    "desc": "Com ou sem gás",
-    "preco": 4,
-    "emoji": "💧"
-  },
-  {
-    "id": 18,
-    "cat": "bebidas",
-    "nome": "Cerveja Long Neck",
-    "desc": "Gelada, 355ml",
-    "preco": 10,
-    "emoji": "🍺"
-  },
-  {
-    "id": 19,
-    "cat": "sobremesas",
-    "nome": "Pudim de Leite",
-    "desc": "Fatia generosa com calda de caramelo",
-    "preco": 8,
-    "emoji": "🍮",
-    "destaque": true
-  },
-  {
-    "id": 20,
-    "cat": "sobremesas",
-    "nome": "Bolo de Cenoura",
-    "desc": "Fatia com cobertura de chocolate",
-    "preco": 9,
-    "emoji": "🍰"
-  },
-  {
-    "id": 21,
-    "cat": "sobremesas",
-    "nome": "Brigadeiro Gourmet",
-    "desc": "Unidade, chocolate belga",
-    "preco": 5,
-    "emoji": "🍫"
-  },
-  {
-    "id": 22,
-    "cat": "sobremesas",
-    "nome": "Açaí 300ml",
-    "desc": "Com granola e banana",
-    "preco": 16,
-    "emoji": "🫐"
-  }
+  { id: 1,  cat:'marmitas', nome:'Marmita P', desc:'Arroz, feijão, 1 mistura, salada e farofa', preco:22.00, emoji:'🍱', img:'' },
+  { id: 2,  cat:'marmitas', nome:'Marmita M', desc:'Arroz, feijão, 2 misturas, salada e farofa', preco:28.00, emoji:'🍛', img:'', tag:'Mais pedida', destaque:true },
+  { id: 3,  cat:'marmitas', nome:'Marmita G', desc:'Arroz, feijão, 3 misturas, 2 acompanhamentos', preco:34.00, emoji:'🍲', img:'' },
+  { id: 4,  cat:'marmitas', nome:'Marmita Fit', desc:'Arroz integral, frango grelhado e legumes no vapor', preco:30.00, emoji:'🥗', img:'', tag:'Saudável' },
+  { id: 5,  cat:'marmitas', nome:'Marmita Vegana', desc:'Arroz, feijão, grão-de-bico temperado e legumes assados', preco:26.00, emoji:'🥦', img:'' },
+  { id: 6,  cat:'executivos', nome:'Feijoada Completa', desc:'Feijoada, arroz, couve refogada, farofa e laranja', preco:39.00, emoji:'🫘', img:'', tag:'Sábado', destaque:true },
+  { id: 7,  cat:'executivos', nome:'Bife à Parmegiana', desc:'Bife empanado, molho de tomate, queijo, arroz e fritas', preco:42.00, emoji:'🥩', img:'' },
+  { id: 8,  cat:'executivos', nome:'Strogonoff de Frango', desc:'Frango cremoso, arroz branco e batata palha', preco:34.00, emoji:'🍄', img:'' },
+  { id: 9,  cat:'executivos', nome:'Costelinha com Mandioca', desc:'Costelinha cozida lentamente, mandioca e arroz', preco:44.00, emoji:'🍖', img:'' },
+  { id: 10, cat:'executivos', nome:'Frango à Passarinho', desc:'Frango frito crocante, arroz, feijão e salada', preco:36.00, emoji:'🍗', img:'' },
+  { id: 11, cat:'porcoes', nome:'Batata Frita', desc:'Porção individual, crocante e sequinha', preco:18.00, emoji:'🍟', img:'' },
+  { id: 12, cat:'porcoes', nome:'Frango à Passarinho (porção)', desc:'Serve 2 pessoas, com alho e limão', preco:32.00, emoji:'🍗', img:'' },
+  { id: 13, cat:'porcoes', nome:'Bolinho de Bacalhau', desc:'8 unidades com aioli de limão', preco:26.00, emoji:'🐟', img:'' },
+  { id: 14, cat:'porcoes', nome:'Pastel de Carne', desc:'6 unidades fritas na hora', preco:20.00, emoji:'🥟', img:'' },
+  { id: 15, cat:'bebidas', nome:'Refrigerante Lata', desc:'Coca-Cola, Guaraná ou Fanta — 350ml', preco:6.00, emoji:'🥤', img:'' },
+  { id: 16, cat:'bebidas', nome:'Suco Natural 500ml', desc:'Laranja, limão ou maracujá, feito na hora', preco:9.00, emoji:'🧃', img:'' },
+  { id: 17, cat:'bebidas', nome:'Água Mineral 500ml', desc:'Com ou sem gás', preco:4.00, emoji:'💧', img:'' },
+  { id: 18, cat:'bebidas', nome:'Cerveja Long Neck', desc:'Gelada, 355ml', preco:10.00, emoji:'🍺', img:'' },
+  { id: 19, cat:'sobremesas', nome:'Pudim de Leite', desc:'Fatia generosa com calda de caramelo', preco:8.00, emoji:'🍮', img:'', destaque:true },
+  { id: 20, cat:'sobremesas', nome:'Bolo de Cenoura', desc:'Fatia com cobertura de chocolate', preco:9.00, emoji:'🍰', img:'' },
+  { id: 21, cat:'sobremesas', nome:'Brigadeiro Gourmet', desc:'Unidade, chocolate belga', preco:5.00, emoji:'🍫', img:'' },
+  { id: 22, cat:'sobremesas', nome:'Açaí 300ml', desc:'Com granola e banana', preco:16.00, emoji:'🫐', img:'' }
 ];
 
 const CATEGORIAS_PADRAO = [
-  {
-    "id": "marmitas",
-    "nome": "Marmitas"
-  },
-  {
-    "id": "executivos",
-    "nome": "Pratos executivos"
-  },
-  {
-    "id": "porcoes",
-    "nome": "Porções"
-  },
-  {
-    "id": "bebidas",
-    "nome": "Bebidas"
-  },
-  {
-    "id": "sobremesas",
-    "nome": "Sobremesas"
-  }
+  { id: 'marmitas',   nome: 'Marmitas' },
+  { id: 'executivos', nome: 'Pratos executivos' },
+  { id: 'porcoes',    nome: 'Porções' },
+  { id: 'bebidas',    nome: 'Bebidas' },
+  { id: 'sobremesas', nome: 'Sobremesas' }
 ];
 
 /* =========================================================
@@ -1080,6 +894,27 @@ const CATEGORIAS_PADRAO = [
 let MENU = JSON.parse(localStorage.getItem('menu_custom')) || [...MENU_PADRAO];
 let CONFIG = JSON.parse(localStorage.getItem('config_custom')) || {...CONFIG_INICIAL};
 let CATEGORIAS = JSON.parse(localStorage.getItem('cats_custom')) || [...CATEGORIAS_PADRAO];
+
+/* =========================================================
+   PWA (APLICATIVO) - INJETANDO MANIFESTO
+   ========================================================= */
+const manifest = {
+  name: CONFIG.nomeLoja,
+  short_name: CONFIG.nomeLoja.split(' ')[0],
+  start_url: './',
+  display: 'standalone',
+  background_color: '#FDF7EE',
+  theme_color: '#B23A2E',
+  icons: [{
+    src: 'https://cdn-icons-png.flaticon.com/512/3014/3014563.png',
+    sizes: '512x512',
+    type: 'image/png'
+  }]
+};
+const manifestString = JSON.stringify(manifest);
+const manifestBlob = new Blob([manifestString], {type: 'application/json'});
+const manifestUrl = URL.createObjectURL(manifestBlob);
+document.getElementById('pwa-manifest').setAttribute('href', manifestUrl);
 
 /* =========================================================
    LÓGICA DO SITE (PÚBLICO)
@@ -1117,11 +952,15 @@ function totalAtual(){ return subtotal() + freteAtual(); }
 
 function renderDestaques(){
   const lista = MENU.filter(p => p.destaque);
-  $('cardsDestaque').innerHTML = lista.map(p => `
+  $('cardsDestaque').innerHTML = lista.map(p => {
+    // Se tem imagem, usa ela. Se não, usa o emoji.
+    const imgHtml = p.img ? `<img src="${p.img}" alt="${p.nome}">` : `<span class="emoji">${p.emoji}</span>`;
+    
+    return `
     <article class="card">
       <div class="foto" style="position:relative">
         ${p.tag ? `<span class="tag ${p.tag === 'Sábado' ? 'amarelo' : ''}">${p.tag}</span>` : ''}
-        <span class="emoji">${p.emoji}</span>
+        ${imgHtml}
       </div>
       <div class="card-body">
         <h3>${p.nome}</h3>
@@ -1132,7 +971,7 @@ function renderDestaques(){
         </div>
       </div>
     </article>
-  `).join('');
+  `}).join('');
 }
 
 let catAtiva = CATEGORIAS.length > 0 ? CATEGORIAS[0].id : '';
@@ -1150,9 +989,13 @@ function filtrar(cat){
 
 function renderMenu(){
   const lista = MENU.filter(p => p.cat === catAtiva);
-  $('menuGrid').innerHTML = lista.map(p => `
+  $('menuGrid').innerHTML = lista.map(p => {
+    // Se tem imagem, usa ela. Se não, usa o emoji.
+    const imgHtml = p.img ? `<img src="${p.img}" alt="${p.nome}">` : p.emoji;
+    
+    return `
     <article class="prato">
-      <div class="prato-emoji">${p.emoji}</div>
+      <div class="prato-emoji">${imgHtml}</div>
       <div class="prato-info">
         <div class="prato-top">
           <h4>${p.nome}</h4>
@@ -1164,7 +1007,7 @@ function renderMenu(){
         </div>
       </div>
     </article>
-  `).join('');
+  `}).join('');
 }
 
 function adicionar(id){
@@ -1220,9 +1063,10 @@ function renderCarrinho(){
 
   const itens = carrinho.map(i => {
     const p = acharPrato(i.id);
+    const imgHtml = p.img ? `<img src="${p.img}" alt="${p.nome}">` : p.emoji;
     return `
       <div class="cart-item">
-        <div class="prato-emoji">${p.emoji}</div>
+        <div class="prato-emoji">${imgHtml}</div>
         <div class="cart-item-info">
           <b>${p.nome}</b>
           <span class="preco">${brl(p.preco * i.qty)}</span>
@@ -1364,8 +1208,6 @@ function mudarAba(idAba, botao) {
 function renderAdminDashboard() {
   $('dash-total-itens').textContent = MENU.length;
   $('dash-total-destaques').textContent = MENU.filter(p => p.destaque).length;
-  
-  // Simula um faturamento baseado no carrinho atual (só pra dar um visual legal)
   $('dash-faturamento').textContent = brl(subtotal() + freteAtual());
 
   const agora = new Date();
@@ -1390,6 +1232,7 @@ function renderAdminMenu() {
     <div class="admin-card">
       <input type="text" class="in-emoji" value="${p.emoji}" onchange="editarPrato(${index}, 'emoji', this.value)" placeholder="Emoji">
       <input type="text" class="in-nome" value="${p.nome}" onchange="editarPrato(${index}, 'nome', this.value)" placeholder="Nome do prato">
+      <input type="text" class="in-img" value="${p.img || ''}" onchange="editarPrato(${index}, 'img', this.value)" placeholder="URL da Foto (opcional)">
       <input type="number" class="in-preco" value="${p.preco}" step="0.01" onchange="editarPrato(${index}, 'preco', this.value)" placeholder="Preço">
       <select class="in-cat" onchange="editarPrato(${index}, 'cat', this.value)">
         ${CATEGORIAS.map(c => `<option value="${c.id}" ${c.id === p.cat ? 'selected' : ''}>${c.nome}</option>`).join('')}
@@ -1419,7 +1262,7 @@ function deletarPrato(index) {
 function addNovoPrato() {
   const novoId = MENU.length > 0 ? Math.max(...MENU.map(p => p.id)) + 1 : 1;
   const catInicial = CATEGORIAS.length > 0 ? CATEGORIAS[0].id : 'marmitas';
-  MENU.push({ id: novoId, cat: catInicial, nome: 'Novo Prato', desc: 'Descrição...', preco: 0, emoji: '🍽️', destaque: false, tag: '' });
+  MENU.push({ id: novoId, cat: catInicial, nome: 'Novo Prato', desc: 'Descrição...', preco: 0, emoji: '🍽️', img: '', destaque: false, tag: '' });
   renderAdminMenu();
   renderAdminDashboard();
 }
@@ -1493,7 +1336,7 @@ function exportarCodigo() {
 }
 
 /* =========================================================
-   INIT
+   INIT E REGISTRO DO SERVICE WORKER (PWA)
    ========================================================= */
 $('btnCart').addEventListener('click', abrirCarrinho);
 $('burger').addEventListener('click', () => $('links').classList.toggle('on'));
@@ -1504,6 +1347,13 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCarrin
 
 if (window.location.hash === '#admin') {
   setTimeout(() => abrirAdmin(), 500);
+}
+
+// Tenta registrar o Service Worker (para o PWA funcionar 100% offline)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sabor-da-casa/sw.js').catch(err => {
+    console.log('Aviso: Service Worker não encontrado. O site funciona, mas não terá cache offline.', err);
+  });
 }
 
 function atualizarStatus(){
