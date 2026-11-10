@@ -5,6 +5,7 @@
 <base href="/sabor-da-casa/">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Sabor da Casa — Marmitaria & Restaurante</title>
+<link rel="icon" href="data:,">
 <meta name="description" content="Marmitas caseiras, pratos executivos e porções. Comida de verdade, feita no dia, entregue quentinha.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +14,7 @@
 <!-- CONFIGURAÇÕES PWA -->
 <meta name="theme-color" content="#B23A2E">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
 <link rel="manifest" id="pwa-manifest">
 
@@ -662,10 +664,11 @@ let CONFIG = JSON.parse(localStorage.getItem('config_custom')) || {...CONFIG_INI
 let CATEGORIAS = JSON.parse(localStorage.getItem('cats_custom')) || [...CATEGORIAS_PADRAO];
 
 /* =========================================================
-   PWA (MANIFESTO)
+   PWA (MANIFESTO) - CORRIGIDO
    ========================================================= */
 const manifest = {
-  name: CONFIG.nomeLoja, short_name: CONFIG.nomeLoja.split(' ')[0], start_url: './',
+  name: CONFIG.nomeLoja, short_name: CONFIG.nomeLoja.split(' ')[0], 
+  start_url: window.location.href, // <-- URL absoluta
   display: 'standalone', background_color: '#FDF7EE', theme_color: '#B23A2E',
   icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3014/3014563.png', sizes: '512x512', type: 'image/png' }]
 };
