@@ -597,7 +597,7 @@ footer .logo small{color:#8C7E6E}
 
 <script>
 /* =========================================================
-   INICIALIZAÇÃO DO FIREBASE (SUA CHAVE AQUI)
+   INICIALIZAÇÃO DO FIREBASE (COM LONG POLLING PARA REDES INSTÁVEIS)
    ========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyAuztBaUmLXWDmU5_aFCV-0ODatekxnp9M",
@@ -612,7 +612,8 @@ const firebaseConfig = {
 let db = null;
 try {
   firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
+  // FORÇANDO CONEXÃO LONG POLLING PARA EVITAR ERROS DE REDE
+  db = firebase.firestore({ experimentalForceLongPolling: true });
   document.getElementById('cloud-status').textContent = "● Conectado à Nuvem";
   document.getElementById('cloud-status').style.color = "#38a169";
 } catch (e) {
