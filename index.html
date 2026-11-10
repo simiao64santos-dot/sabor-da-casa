@@ -597,7 +597,7 @@ footer .logo small{color:#8C7E6E}
 
 <script>
 /* =========================================================
-   INICIALIZAÇÃO DO FIREBASE (COM LONG POLLING PARA REDES INSTÁVEIS)
+   INICIALIZAÇÃO DO FIREBASE (CORRIGIDA)
    ========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyAuztBaUmLXWDmU5_aFCV-0ODatekxnp9M",
@@ -612,8 +612,10 @@ const firebaseConfig = {
 let db = null;
 try {
   firebase.initializeApp(firebaseConfig);
-  // FORÇANDO CONEXÃO LONG POLLING PARA EVITAR ERROS DE REDE
-  db = firebase.firestore({ experimentalForceLongPolling: true });
+  db = firebase.firestore();
+  // CORREÇÃO: O settings é aplicado DEPOIS de instanciar o banco
+  db.settings({ experimentalForceLongPolling: true });
+  
   document.getElementById('cloud-status').textContent = "● Conectado à Nuvem";
   document.getElementById('cloud-status').style.color = "#38a169";
 } catch (e) {
@@ -665,11 +667,11 @@ let CONFIG = JSON.parse(localStorage.getItem('config_custom')) || {...CONFIG_INI
 let CATEGORIAS = JSON.parse(localStorage.getItem('cats_custom')) || [...CATEGORIAS_PADRAO];
 
 /* =========================================================
-   PWA (MANIFESTO) - CORRIGIDO
+   PWA (MANIFESTO)
    ========================================================= */
 const manifest = {
   name: CONFIG.nomeLoja, short_name: CONFIG.nomeLoja.split(' ')[0], 
-  start_url: window.location.href, // <-- URL absoluta
+  start_url: window.location.href,
   display: 'standalone', background_color: '#FDF7EE', theme_color: '#B23A2E',
   icons: [{ src: 'https://cdn-icons-png.flaticon.com/512/3014/3014563.png', sizes: '512x512', type: 'image/png' }]
 };
