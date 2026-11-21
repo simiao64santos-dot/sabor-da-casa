@@ -1443,4 +1443,122 @@ function publicarNaNuvem() {
     toast('☁️ Publicado na nuvem!');
     $('msg-nuvem').textContent = "✅ Alterações publicadas para todos!";
     $('msg-nuvem').style.color = "#38a169";
-   
+    $('cloud-status').textContent = "● Sincronizado";
+  }).catch(error => {
+    console.error("Erro ao publicar: ", error);
+    let msg = "❌ Erro. ";
+    if (error.code === 'permission-denied') {
+      msg += "Verifique as regras do Firestore (allow write).";
+    } else {
+      msg += error.message || 'Tente novamente.';
+    }
+    toast('❌ Erro ao publicar');
+    $('msg-nuvem').textContent = msg;
+    $('msg-nuvem').style.color = "#e53e3e";
+  });
+}
+
+/* =========================================================
+   CARREGAR DO FIRESTORE
+   ========================================================= */
+function carregarDoBanco() {
+  if (!db) {
+    aplicarTudo();
+    $('cloud-status').textContent = "● Modo local";
+    $('cloud-status').style.color = "#e53e3e";
+    return;
+  }
+
+  db.collection("loja").doc("dados").get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.config) CONFIG = Object.assign({}, CONFIG_INICIAL, data.config);
+      if (Array.isArray(data.menu) && data.menu.length > 0) MENU = data.menu;
+      if (Array.isArray(data.categorias) && data.categorias.length > 0) CATEGORIAS = data.categorias;
+
+      localStorage.setItem('menu_custom', JSON.stringify(MENU));
+      localStorage.setItem('config_custom', JSON.stringify(CONFIG));
+      localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+    }
+    if (!CATEGORIAS.find(c => c.id === catAtiva)) {
+      catAtiva = CATEGORIAS[0]?.id || '';
+    }
+    aplicarTudo();
+    $('cloud-status').textContent = "● Conectado";
+  }).catch(error => {
+    console.error("Erro ao carregar da nuvem: ", error);
+    aplicarTudo();
+    $('cloud-status').textContent = "● Modo local";
+    $('cloud-status').style.color = "#e53e3e";
+  });
+}
+
+function aplicarTudo() {
+  aplicarConfiguracoes();
+  renderDestaques();
+  renderChips();
+  renderMenu();
+  renderCarrinho();
+  atualizarBadge();
+  renderAdminDashboard();
+}
+
+/* =========================================================
+   STATUS ABERTO/FECHADO
+   ========================================================= */
+function atualizarStatus() {
+  const agora = new Date();
+  const dia = agora.getDay();
+  const h = agora.getHours() + agora.getMinutes() / 60;
+  let aberto = false;
+  if (dia !== 1) {
+    if (dia >= 2 && dia <= 5) aberto = (h >= 11 && h < 15) || (h >= 18 && h < 22);
+    else if (dia === 6) aberto = (h >= 11 && h < 16) || (h >= 18 && h < 23);
+    else if (dia === 0) aberto = (h >= 11 && h < 16);
+  }
+  $('statusDot').classList.toggle('off', !aberto);
+  $('statusTxt').textContent = aberto ? 'Aberto agora' : 'Fechado no momento';
+}
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+$('btnCart').addEventListener('click', abrirCarrinho);
+$('burger').addEventListener('click', () => $('links').classList.toggle('on'));
+document.querySelectorAll('#links a').forEach(a =>
+  a.addEventListener('click', () => $('links').classList.remove('on'))
+);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCarrinho(); });
+
+// Acesso admin: URL #admin OU 5 toques no logo OU clique no pontinho discreto do footer
+if (window.location.hash === '#admin') {
+  setTimeout(abrirAdmin, 500);
+}
+
+let logoTaps = 0, logoTimer;
+$('logoPrincipal').addEventListener('click', (e) => {
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(() => { logoTaps = 0; }, 900);
+  if (logoTaps >= 5) {
+    e.preventDefault();
+    logoTaps = 0;
+    abrirAdmin();
+  }
+});
+
+$('adminTrigger').addEventListener('click', abrirAdmin);
+
+// Popular variáveis iniciais
+$('ano').textContent = new Date().getFullYear();
+atualizarStatus();
+setInterval(atualizarStatus, 60000);
+carregarDoBanco();
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW não registrado:', err));
+}
+</script>
+</body>
+</html>
