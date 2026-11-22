@@ -233,25 +233,26 @@ footer .logo small{color:#8C7E6E}
 .stat-card span{font-size:.85rem;color:#a0aec0;text-transform:uppercase;letter-spacing:1px;font-weight:600}
 .stat-card strong{font-size:2rem;color:#F2B441;font-weight:800;font-family:'Fraunces',serif}
 .admin-list{display:flex;flex-direction:column;gap:15px}
-.admin-card{background:#1a1d24;border:1px solid #2d3748;border-radius:12px;padding:15px;display:flex;gap:15px;align-items:flex-start;flex-wrap:wrap}
+.admin-card{background:#1a1d24;border:1px solid #2d3748;border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:12px}
+.admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
 .admin-card input[type="text"],.admin-card input[type="number"],.admin-card select,.admin-card textarea{background:#0f1115;border:1px solid #2d3748;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:.9rem;outline:none;transition:.2s}
 .admin-card input:focus,.admin-card select:focus,.admin-card textarea:focus{border-color:#F2B441;box-shadow:0 0 0 3px rgba(242,180,65,.1)}
-.admin-card .in-emoji{width:60px;text-align:center;font-size:1.5rem;padding:5px}
-.admin-card .in-nome{flex:2;min-width:150px;font-weight:600}
-.admin-card .in-img-wrapper{flex:3;min-width:200px;display:flex;gap:5px}
-.admin-card .in-img{flex:1;color:#63b3ed}
-.admin-card .in-preco{width:100px}
-.admin-card .in-cat{width:140px}
-.admin-card .in-desc{flex:3;min-width:200px}
-.admin-card .in-tag{width:120px}
-.admin-card label{display:flex;align-items:center;gap:8px;color:#a0aec0;font-size:.9rem;cursor:pointer}
+.admin-card .in-emoji{width:50px;text-align:center;font-size:1.5rem;padding:5px;flex-shrink:0}
+.admin-card .in-nome{flex:1;min-width:150px;font-weight:600}
+.admin-card .in-preco{width:100px;flex-shrink:0}
+.admin-card .in-cat{width:160px;flex-shrink:0}
+.admin-card .in-img-wrapper{flex:1;display:flex;gap:8px;width:100%}
+.admin-card .in-img{flex:1;color:#63b3ed;width:100%}
+.admin-card .in-desc{width:100%}
+.admin-card .in-tag{width:150px;flex-shrink:0}
+.admin-card label{display:flex;align-items:center;gap:8px;color:#a0aec0;font-size:.9rem;cursor:pointer;margin-right:auto}
 .admin-card input[type="checkbox"]{width:18px;height:18px;accent-color:#F2B441;cursor:pointer}
 .btn-admin{padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;border:none}
 .btn-add{background:#38a169;color:#fff}.btn-add:hover{background:#2f855a}
 .btn-save{background:#3182ce;color:#fff}.btn-save:hover{background:#2b6cb0}
 .btn-export{background:#F2B441;color:#0f1115;font-size:1.1rem;padding:15px 30px;width:100%;justify-content:center;border-radius:12px}
 .btn-export:hover{background:#dd9c26}
-.btn-del{background:rgba(229,62,62,.1);color:#fc8181;padding:10px;border-radius:8px}.btn-del:hover{background:#e53e3e;color:#fff}
+.btn-del{background:rgba(229,62,62,.1);color:#fc8181;padding:10px;border-radius:8px;margin-left:auto}.btn-del:hover{background:#e53e3e;color:#fff}
 .btn-upload{background:#805ad5;color:#fff;padding:10px 15px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;border-radius:8px;cursor:pointer}
 .btn-upload:hover{background:#6b46c1}
 .config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
@@ -986,4 +987,324 @@ function renderPedidos(){
         <span class="order-total">Total: ${brl(p.total)}</span>
         <div class="order-actions">
           ${['novo'].includes(p.status) ? `<button class="btn-status" style="background:#3182ce" onclick="mudarStatus('${p.id}','preparando')">🍳 Preparar</button>` : ''}
-          ${p.status === 'preparando' ? `<button class="btn-status" style="background:#
+          ${p.status === 'preparando' ? `<button class="btn-status" style="background:#9f7aea" onclick="mudarStatus('${p.id}','saiu')">🛵 Saiu p/ Entrega</button>` : ''}
+          ${p.status === 'saiu' ? `<button class="btn-status" style="background:#38a169" onclick="mudarStatus('${p.id}','entregue')">✅ Entregue</button>` : ''}
+          ${p.status !== 'cancelado' && p.status !== 'entregue' ? `<button class="btn-status" style="background:#e53e3e" onclick="mudarStatus('${p.id}','cancelado')">❌ Cancelar</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function mudarStatus(id, novoStatus){
+  if (!db) return;
+  try {
+    await db.collection('pedidos').doc(id).update({ status: novoStatus });
+    const p = pedidosCache.find(x => x.id === id);
+    if (p) p.status = novoStatus;
+    renderPedidos();
+    atualizarEstatisticas();
+    toast('✅ Status atualizado');
+  } catch (err){ toast('❌ Erro ao atualizar'); }
+}
+
+function atualizarEstatisticas(){
+  const agora = new Date();
+  const limite = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+  let pedidos30d = 0, faturamento30d = 0, pendentes = 0;
+  pedidosCache.forEach(p => {
+    const dt = p.criadoEm?.toDate ? p.criadoEm.toDate() : new Date(0);
+    if (dt >= limite && p.status !== 'cancelado'){ pedidos30d++; faturamento30d += (p.total || 0); }
+    if (p.status !== 'entregue' && p.status !== 'cancelado') pendentes++;
+  });
+  const ticket = pedidos30d > 0 ? faturamento30d / pedidos30d : 0;
+  if ($('dash-pedidos-30d')) $('dash-pedidos-30d').textContent = pedidos30d;
+  if ($('dash-faturamento')) $('dash-faturamento').textContent = brl(faturamento30d);
+  if ($('dash-ticket')) $('dash-ticket').textContent = brl(ticket);
+  if ($('dash-pendentes')) $('dash-pendentes').textContent = pendentes;
+}
+
+/* ============= ADMIN — MENU ============= */
+function renderAdminDashboard() {
+  $('dash-total-itens').textContent = MENU.length;
+  $('dash-total-destaques').textContent = MENU.filter(p => p.destaque).length;
+  $('dash-total-cats').textContent = CATEGORIAS.length;
+}
+
+function renderAdminMenu() {
+  $('admin-menu-list').innerHTML = MENU.map(p => `
+    <div class="admin-card">
+      <!-- LINHA 1: Emoji, Nome, Preço e Categoria -->
+      <div class="admin-row">
+        <input type="text" class="in-emoji" value="${p.emoji || ''}" onchange="editarPrato(${p.id}, 'emoji', this.value)" title="Emoji">
+        <input type="text" class="in-nome" value="${(p.nome || '').replace(/"/g, '&quot;')}" onchange="editarPrato(${p.id}, 'nome', this.value)" placeholder="Nome do Prato">
+        <input type="number" class="in-preco" value="${p.preco}" step="0.01" onchange="editarPrato(${p.id}, 'preco', parseFloat(this.value) || 0)" placeholder="Preço">
+        <select class="in-cat" onchange="editarPrato(${p.id}, 'cat', this.value)">
+          ${CATEGORIAS.map(c => `<option value="${c.id}" ${c.id === p.cat ? 'selected' : ''}>${c.nome}</option>`).join('')}
+        </select>
+      </div>
+
+      <!-- LINHA 2: URL da Imagem e Botão de Upload -->
+      <div class="admin-row">
+        <div class="in-img-wrapper">
+          <input type="text" class="in-img" data-id="${p.id}" value="${p.img || ''}" onchange="editarPrato(${p.id}, 'img', this.value)" placeholder="URL da Foto (ou use o botão ao lado)">
+          <input type="file" accept="image/*" id="file-${p.id}" style="display:none" onchange="uploadImagem(${p.id}, this)">
+          <button class="btn-admin btn-upload" onclick="document.getElementById('file-${p.id}').click()" title="Enviar Foto">📷</button>
+        </div>
+      </div>
+
+      <!-- LINHA 3: Descrição completa -->
+      <div class="admin-row">
+        <input type="text" class="in-desc" value="${(p.desc || '').replace(/"/g, '&quot;')}" onchange="editarPrato(${p.id}, 'desc', this.value)" placeholder="Descrição detalhada do prato">
+      </div>
+
+      <!-- LINHA 4: Tag, Destaque e Botão Excluir -->
+      <div class="admin-row" style="border-top: 1px solid #2d3748; padding-top: 12px; margin-top: 5px;">
+        <input type="text" class="in-tag" value="${(p.tag || '').replace(/"/g, '&quot;')}" onchange="editarPrato(${p.id}, 'tag', this.value)" placeholder="Tag (ex: Mais pedida)">
+        <label><input type="checkbox" ${p.destaque ? 'checked' : ''} onchange="editarPrato(${p.id}, 'destaque', this.checked)"> Em Destaque</label>
+        <button class="btn-admin btn-del" onclick="deletarPrato(${p.id})">Excluir Prato</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editarPrato(id, campo, valor) {
+  const p = MENU.find(x => x.id === id);
+  if (!p) return;
+  p[campo] = valor;
+  localStorage.setItem('menu_custom', JSON.stringify(MENU));
+}
+
+function deletarPrato(id) {
+  if (!confirm("Excluir este prato?")) return;
+  MENU = MENU.filter(p => p.id !== id);
+  localStorage.setItem('menu_custom', JSON.stringify(MENU));
+  carrinho = carrinho.filter(i => i.id !== id);
+  salvarCarrinho();
+  renderAdminMenu();
+  renderAdminDashboard();
+  renderMenu();
+  renderDestaques();
+  atualizarBadge();
+  toast('🗑️ Prato excluído');
+}
+
+function addNovoPrato() {
+  const novoId = MENU.length > 0 ? Math.max(...MENU.map(p => Number(p.id) || 0)) + 1 : 1;
+  MENU.push({
+    id: novoId,
+    cat: CATEGORIAS[0]?.id || '',
+    nome: 'Novo prato',
+    desc: 'Descrição',
+    preco: 0,
+    emoji: '🍽️',
+    img: '',
+    destaque: false,
+    tag: ''
+  });
+  localStorage.setItem('menu_custom', JSON.stringify(MENU));
+  renderAdminMenu();
+  renderAdminDashboard();
+  toast('✅ Prato criado');
+}
+
+async function uploadImagem(id, input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('⏳ Enviando foto…');
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  try {
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
+    const data = await response.json();
+    if (data.secure_url) {
+      const prato = MENU.find(p => p.id === id);
+      if (prato) prato.img = data.secure_url;
+      const inputField = document.querySelector(`.in-img[data-id="${id}"]`);
+      if (inputField) inputField.value = data.secure_url;
+      localStorage.setItem('menu_custom', JSON.stringify(MENU));
+      toast('✅ Foto enviada');
+    } else { throw new Error('URL não retornada'); }
+  } catch (error) { console.error("Erro no upload: ", error); toast('❌ Erro ao enviar foto'); }
+}
+
+/* ============= ADMIN — CATEGORIAS ============= */
+function renderAdminCategorias() {
+  $('admin-cat-list').innerHTML = CATEGORIAS.map((c, i) => `
+    <div class="admin-card">
+      <div class="admin-row">
+        <input type="text" class="in-nome" value="${c.nome}" onchange="CATEGORIAS[${i}].nome = this.value" placeholder="Nome da categoria">
+        <input type="text" class="in-nome" value="${c.id}" ${['marmitas','executivos','porcoes','bebidas','sobremesas'].includes(c.id) ? 'readonly style="opacity:0.5"' : ''} onchange="CATEGORIAS[${i}].id = this.value" placeholder="ID único">
+        <button class="btn-admin btn-del" onclick="deletarCategoria(${i})">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deletarCategoria(i) {
+  const cat = CATEGORIAS[i];
+  if (!cat) return;
+  const pratos = MENU.filter(p => p.cat === cat.id);
+  if (pratos.length > 0) {
+    if (!confirm(`Existem ${pratos.length} prato(s) nesta categoria. Excluir mesmo assim? Os pratos ficarão órfãos.`)) return;
+    const destino = CATEGORIAS.find((_, idx) => idx !== i);
+    if (destino) MENU.forEach(p => { if (p.cat === cat.id) p.cat = destino.id; });
+    localStorage.setItem('menu_custom', JSON.stringify(MENU));
+  } else {
+    if (!confirm("Excluir esta categoria?")) return;
+  }
+  CATEGORIAS.splice(i, 1);
+  localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+  if (!CATEGORIAS.find(c => c.id === catAtiva)) catAtiva = CATEGORIAS[0]?.id || '';
+  renderAdminCategorias();
+  renderAdminDashboard();
+  renderChips();
+  renderMenu();
+  toast('🗑️ Categoria excluída');
+}
+
+function addNovaCategoria() {
+  const novoId = 'cat_' + Math.floor(Math.random() * 10000);
+  CATEGORIAS.push({ id: novoId, nome: 'Nova Categoria' });
+  localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+  renderAdminCategorias();
+  renderAdminDashboard();
+  renderChips();
+  toast('✅ Categoria criada');
+}
+
+/* ============= ADMIN — CONFIGURAÇÕES ============= */
+function preencherConfig() {
+  $('cfg-nome').value = CONFIG.nomeLoja;
+  $('cfg-whatsapp').value = CONFIG.whatsapp;
+  $('cfg-taxa').value = CONFIG.taxaEntrega;
+  $('cfg-frete').value = CONFIG.freteGratis;
+  $('cfg-minimo').value = CONFIG.pedidoMinimo;
+}
+
+function salvarConfiguracoes() {
+  CONFIG.nomeLoja = $('cfg-nome').value.trim() || 'Minha Loja';
+  CONFIG.whatsapp = $('cfg-whatsapp').value.replace(/\D/g, '') || CONFIG_INICIAL.whatsapp;
+  CONFIG.taxaEntrega = parseNum($('cfg-taxa').value);
+  CONFIG.freteGratis = parseNum($('cfg-frete').value);
+  CONFIG.pedidoMinimo = parseNum($('cfg-minimo').value);
+  localStorage.setItem('menu_custom', JSON.stringify(MENU));
+  localStorage.setItem('config_custom', JSON.stringify(CONFIG));
+  localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+  aplicarConfiguracoes();
+  renderDestaques();
+  renderChips();
+  renderMenu();
+  renderCarrinho();
+  renderAdminDashboard();
+  toast('✅ Configurações salvas');
+}
+
+/* ============= PUBLICAR ============= */
+function publicarNaNuvem() {
+  if (!db) { toast('❌ Firebase não conectado'); return; }
+  $('msg-nuvem').textContent = "Salvando na nuvem...";
+  $('msg-nuvem').style.color = "#a0aec0";
+  db.collection("loja").doc("dados").set({
+    config: CONFIG,
+    menu: MENU,
+    categorias: CATEGORIAS,
+    atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    toast('☁️ Publicado na nuvem!');
+    $('msg-nuvem').textContent = "✅ Alterações publicadas para todos!";
+    $('msg-nuvem').style.color = "#38a169";
+    $('cloud-status').textContent = "● Sincronizado";
+  }).catch(error => {
+    console.error("Erro ao publicar: ", error);
+    let msg = "❌ Erro. ";
+    if (error.code === 'permission-denied') msg += "Verifique as regras do Firestore.";
+    else msg += error.message || 'Tente novamente.';
+    toast('❌ Erro ao publicar');
+    $('msg-nuvem').textContent = msg;
+    $('msg-nuvem').style.color = "#e53e3e";
+  });
+}
+
+function carregarDoBanco() {
+  if (!db) {
+    aplicarTudo();
+    $('cloud-status').textContent = "● Modo local";
+    $('cloud-status').style.color = "#e53e3e";
+    return;
+  }
+  db.collection("loja").doc("dados").get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.config) CONFIG = Object.assign({}, CONFIG_INICIAL, data.config);
+      if (Array.isArray(data.menu) && data.menu.length > 0) MENU = data.menu;
+      if (Array.isArray(data.categorias) && data.categorias.length > 0) CATEGORIAS = data.categorias;
+      localStorage.setItem('menu_custom', JSON.stringify(MENU));
+      localStorage.setItem('config_custom', JSON.stringify(CONFIG));
+      localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+    }
+    if (!CATEGORIAS.find(c => c.id === catAtiva)) catAtiva = CATEGORIAS[0]?.id || '';
+    aplicarTudo();
+    $('cloud-status').textContent = "● Conectado";
+  }).catch(error => {
+    console.error("Erro ao carregar da nuvem: ", error);
+    aplicarTudo();
+    $('cloud-status').textContent = "● Modo local";
+    $('cloud-status').style.color = "#e53e3e";
+  });
+}
+
+function aplicarTudo() {
+  aplicarConfiguracoes();
+  renderDestaques();
+  renderChips();
+  renderMenu();
+  renderCarrinho();
+  atualizarBadge();
+  renderAdminDashboard();
+}
+
+function atualizarStatus() {
+  const agora = new Date();
+  const dia = agora.getDay();
+  const h = agora.getHours() + agora.getMinutes() / 60;
+  let aberto = false;
+  if (dia !== 1) {
+    if (dia >= 2 && dia <= 5) aberto = (h >= 11 && h < 15) || (h >= 18 && h < 22);
+    else if (dia === 6) aberto = (h >= 11 && h < 16) || (h >= 18 && h < 23);
+    else if (dia === 0) aberto = (h >= 11 && h < 16);
+  }
+  $('statusDot').classList.toggle('off', !aberto);
+  $('statusTxt').textContent = aberto ? 'Aberto agora' : 'Fechado no momento';
+}
+
+/* ============= INICIALIZAÇÃO ============= */
+$('btnCart').addEventListener('click', abrirCarrinho);
+$('burger').addEventListener('click', () => $('links').classList.toggle('on'));
+document.querySelectorAll('#links a').forEach(a => a.addEventListener('click', () => $('links').classList.remove('on')));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCarrinho(); });
+
+if (window.location.hash === '#admin') setTimeout(abrirAdmin, 500);
+
+let logoTaps = 0, logoTimer;
+$('logoPrincipal').addEventListener('click', (e) => {
+  logoTaps++;
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(() => { logoTaps = 0; }, 900);
+  if (logoTaps >= 5) { e.preventDefault(); logoTaps = 0; abrirAdmin(); }
+});
+
+$('adminTrigger').addEventListener('click', abrirAdmin);
+
+$('ano').textContent = new Date().getFullYear();
+atualizarStatus();
+setInterval(atualizarStatus, 60000);
+carregarDoBanco();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW não registrado:', err));
+}
+</script>
+</body>
+</html>
