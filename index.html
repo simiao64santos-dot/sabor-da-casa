@@ -21,14 +21,17 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
 <link rel="manifest" id="pwa-manifest">
+<!-- BIBLIOTECA PARA GERAR O QR CODE -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 <style>
+/* O CSS PERMANECE O MESMO DA VERSÃO ANTERIOR, COM O ADICIONAL DO MODAL PIX */
 :root{--vermelho:#B23A2E;--vermelho-esc:#8E2B22;--amarelo:#F2B441;--creme:#FDF7EE;--creme2:#F6EBD9;--verde:#4A6B3E;--carvao:#2B2118;--cinza:#7A6C5D;--branco:#fff;--radius:18px;--shadow:0 14px 34px -16px rgba(43,33,24,.30)}
-/* MODO ESCURO */
 body.dark { --creme:#121212; --creme2:#1e1e1e; --carvao:#f5f5f5; --branco:#2a2a2a; --cinza:#aaaaaa; background:var(--creme); color:var(--carvao); }
 body.dark header { background:rgba(18,18,18,.8); border-bottom-color:rgba(255,255,255,.1); }
 body.dark .links a { color:#ccc; }
 body.dark .links a:hover { background:#333; color:#fff; }
-body.dark .card, body.dark .prato, body.dark .painel, body.dark .depo, body.dark .drawer, body.dark .drawer-head, body.dark .drawer-foot { background:#1e1e1e; border-color:#333; }
+body.dark .card, body.dark .prato, body.dark .painel, body.dark .depo, body.dark .drawer, body.dark .drawer-head, body.dark .drawer-foot, body.dark .modal-pix-box { background:#1e1e1e; border-color:#333; }
 body.dark .prato-emoji { background:linear-gradient(150deg,#333,#222); }
 body.dark .form-pedido input, body.dark .form-pedido select, body.dark .form-pedido textarea, body.dark .cupom-row input { background:#121212; color:#fff; border-color:#444; }
 body.dark .chips .chip { background:#1e1e1e; color:#ccc; border-color:#444; }
@@ -37,7 +40,6 @@ body.dark .info { background:#181818; }
 body.dark .busca { background:#1e1e1e; color:#fff; border-color:#444; }
 body.dark .btn-ghost { border-color:rgba(255,255,255,.2); color:var(--carvao); }
 body.dark .btn-ghost:hover { background:#333; }
-
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:96px}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--creme);color:var(--carvao);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden; transition: background .3s, color .3s}
@@ -201,9 +203,11 @@ footer .logo small{color:#8C7E6E}
 .totais .total{font-size:1.18rem;font-weight:800;color:var(--carvao);padding-top:9px;border-top:1px dashed rgba(43,33,24,.2);margin-top:4px}
 .totais .total span:last-child{font-family:'Fraunces',serif;color:var(--vermelho)}
 .frete-gratis{font-size:.78rem;color:var(--verde);font-weight:600;text-align:center;margin-bottom:12px}
-.btn-final{width:100%;background:#25D366;color:#06341A;padding:16px;border-radius:13px;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;transition:.16s}
+.btn-final{width:100%;background:#25D366;color:#06341A;padding:16px;border-radius:13px;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;transition:.16s;margin-bottom:10px;}
 .btn-final:hover{background:#1FBE5B;transform:translateY(-1px)}
 .btn-final:disabled{background:#D8D0C4;color:#8C8172;cursor:not-allowed;transform:none}
+.btn-pix{background:#32BCAD;color:#fff;}
+.btn-pix:hover{background:#289e91;}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,140%);background:var(--carvao);color:var(--creme);padding:14px 24px;border-radius:999px;font-size:.9rem;font-weight:600;z-index:200;box-shadow:0 18px 40px -18px rgba(0,0,0,.7);transition:transform .32s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:10px;max-width:90vw}
 .toast.on{transform:translate(-50%,0)}
 .wpp-float{position:fixed;right:20px;bottom:20px;z-index:70;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 14px 30px -10px rgba(37,211,102,.75);transition:transform .2s}
@@ -224,7 +228,19 @@ footer .logo small{color:#8C7E6E}
 .loading::after{content:"";display:inline-block;width:26px;height:26px;border:3px solid rgba(178,58,46,.15);border-top-color:var(--vermelho);border-radius:50%;animation:spin .7s linear infinite;margin-left:10px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-msg{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--cinza);font-size:.95rem}
-/* ADMIN */
+
+/* MODAL PIX */
+.modal-pix-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-pix-overlay.on{display:flex;}
+.modal-pix-box{background:#fff;border-radius:16px;padding:30px;width:min(400px,100%);text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.5);}
+.modal-pix-box h3{color:var(--carvao);font-family:'Inter',sans-serif;margin-bottom:10px;}
+.modal-pix-box p{color:var(--cinza);font-size:.9rem;margin-bottom:20px;}
+.qr-container{background:#fff; padding:10px; border-radius:10px; display:inline-block; margin-bottom:15px;}
+.pix-copia-cola{width:100%; padding:10px; border:1.6px solid #ccc; border-radius:8px; font-family:monospace; font-size:.8rem; resize:none; margin-bottom:10px; background:#f9f9f9; color:#333;}
+.btn-copiar{background:var(--vermelho); color:#fff; padding:12px; width:100%; border-radius:8px; font-weight:bold; font-size:1rem; margin-bottom:10px;}
+.btn-fechar-pix{background:#e2e8f0; color:#4a5568; padding:10px; width:100%; border-radius:8px; font-weight:bold;}
+
+/* ADMIN (Mantido) */
 #adminOverlay{position:fixed;inset:0;background:#0f1115;z-index:9999;display:none;flex-direction:column;font-family:'Inter',sans-serif;color:#e2e8f0;opacity:0;transition:opacity .3s ease}
 #adminOverlay.on{display:flex;opacity:1}
 .admin-header{background:#1a1d24;padding:15px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2d3748;gap:15px;flex-wrap:wrap}
@@ -276,7 +292,6 @@ footer .logo small{color:#8C7E6E}
 .config-box input{width:100%;background:#0f1115;border:1px solid #2d3748;color:#e2e8f0;padding:12px;border-radius:8px;outline:none}
 .config-box input:focus{border-color:#F2B441}
 .alerta{background:rgba(229,62,62,.1);border:1px solid #e53e3e;color:#fc8181;padding:14px 18px;border-radius:10px;font-size:.85rem;margin-bottom:20px;line-height:1.5}
-/* AUTH */
 .auth-overlay{position:fixed;inset:0;background:rgba(15,17,21,.92);backdrop-filter:blur(6px);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
 .auth-overlay.on{display:flex}
 .auth-box{background:#1a1d24;border:1px solid #2d3748;border-radius:16px;padding:35px 30px;width:min(400px,100%);box-shadow:0 25px 60px -20px rgba(0,0,0,.8)}
@@ -285,7 +300,6 @@ footer .logo small{color:#8C7E6E}
 .auth-box input{width:100%;padding:13px 15px;margin-bottom:12px;background:#0f1115;border:1px solid #2d3748;color:#e2e8f0;border-radius:9px;font:inherit;font-size:.92rem}
 .auth-box input:focus{outline:none;border-color:#F2B441;box-shadow:0 0 0 3px rgba(242,180,65,.15)}
 .auth-erro{color:#fc8181;font-size:.85rem;margin-top:12px;text-align:center;min-height:20px}
-/* PEDIDOS */
 .order-card{background:#1a1d24;border:1px solid #2d3748;border-radius:12px;padding:18px;margin-bottom:15px}
 .order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:10px;flex-wrap:wrap}
 .order-head h4{color:#f8fafc;font-size:1.05rem;font-family:'Inter',sans-serif}
@@ -299,6 +313,7 @@ footer .logo small{color:#8C7E6E}
 .status-saiu{background:rgba(159,122,234,.15);color:#b794f4}
 .status-entregue{background:rgba(56,161,105,.15);color:#68d391}
 .status-cancelado{background:rgba(229,62,62,.15);color:#fc8181}
+.status-pago{background:rgba(50,188,173,.15);color:#32BCAD}
 .btn-status{padding:8px 14px;border-radius:7px;font-size:.8rem;font-weight:600;border:none;cursor:pointer;transition:.2s;color:#fff}
 .btn-status:hover{opacity:.85;transform:translateY(-1px)}
 @media(max-width:768px){.admin-layout{flex-direction:column}.admin-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:0;border-right:none;border-bottom:1px solid #2d3748}.admin-nav-btn{padding:15px 20px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap}.admin-nav-btn.active{border-left:none;border-bottom-color:#F2B441}.admin-card{flex-direction:column;align-items:stretch}.admin-card .in-nome,.admin-card .in-preco,.admin-card .in-cat,.admin-card .in-desc,.admin-card .in-tag,.admin-card .in-img-wrapper{width:100%;max-width:100%}}
@@ -346,6 +361,7 @@ footer .logo small{color:#8C7E6E}
   </div>
 </header>
 
+<!-- HERO E DEMAIS SEÇÕES MANTIDAS -->
 <section class="hero">
   <div class="container hero-grid">
     <div>
@@ -516,6 +532,18 @@ footer .logo small{color:#8C7E6E}
   <div class="drawer-foot" id="drawerFoot" style="display:none"></div>
 </aside>
 
+<!-- MODAL DO PIX -->
+<div id="modalPix" class="modal-pix-overlay">
+  <div class="modal-pix-box">
+    <h3>Pagamento via Pix</h3>
+    <p>Escaneie o QR Code ou copie o código abaixo no app do seu banco.</p>
+    <div class="qr-container" id="qrcode"></div>
+    <textarea class="pix-copia-cola" id="pixCopiaCola" readonly rows="3"></textarea>
+    <button class="btn-copiar" onclick="copiarPix()">📋 Copiar Código</button>
+    <button class="btn-fechar-pix" onclick="fecharModalPix()">Fechar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast">✅ Adicionado ao carrinho</div>
 
 <a class="wpp-float" id="link-whatsapp-float" href="https://wa.me/5511987654321" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
@@ -599,16 +627,18 @@ footer .logo small{color:#8C7E6E}
 
       <section id="sec-config" class="admin-section">
         <h3>Configurações</h3>
-        <p class="subtitle">Dados gerais de contato e entrega.</p>
+        <p class="subtitle">Dados gerais de contato, entrega e chave Pix.</p>
         <div class="config-grid">
           <div class="config-box"><label>Nome da Loja</label><input type="text" id="cfg-nome"></div>
           <div class="config-box"><label>WhatsApp (só dígitos com DDI)</label><input type="text" id="cfg-whatsapp" placeholder="5511987654321"></div>
+          <div class="config-box"><label>Chave Pix (CPF, CNPJ, E-mail ou Celular)</label><input type="text" id="cfg-pix" placeholder="Ex: 11999999999"></div>
+          <div class="config-box"><label>Nome do Recebedor (Pix)</label><input type="text" id="cfg-pix-nome" placeholder="Ex: Sabor da Casa"></div>
           <div class="config-box"><label>Taxa de Entrega (R$)</label><input type="number" id="cfg-taxa" step="0.01"></div>
           <div class="config-box"><label>Valor p/ Frete Grátis (R$)</label><input type="number" id="cfg-frete" step="0.01"></div>
           <div class="config-box"><label>Pedido Mínimo (R$)</label><input type="number" id="cfg-minimo" step="0.01"></div>
-          <div class="config-box"><label>E-mail de Contato</label><input type="text" id="cfg-email" placeholder="contato@loja.com"></div>
-          <div class="config-box"><label>Endereço Completo</label><input type="text" id="cfg-endereco" placeholder="Rua..., Número - Bairro"></div>
-          <div class="config-box"><label>Horário de Funcionamento</label><input type="text" id="cfg-horario" placeholder="Ter a Dom · 11h às 22h"></div>
+          <div class="config-box"><label>E-mail de Contato</label><input type="text" id="cfg-email"></div>
+          <div class="config-box"><label>Endereço Completo</label><input type="text" id="cfg-endereco"></div>
+          <div class="config-box"><label>Horário de Funcionamento</label><input type="text" id="cfg-horario"></div>
         </div>
         <div style="margin-top:25px"><button class="btn-admin btn-save" onclick="salvarConfiguracoes()">💾 Salvar</button></div>
       </section>
@@ -658,7 +688,9 @@ const CONFIG_INICIAL = {
   pedidoMinimo:20.00,
   email:'contato@sabordacasa.com.br',
   endereco:'Rua das Acácias, 128 — Centro',
-  horario:'Ter a Dom · 11h às 22h'
+  horario:'Ter a Dom · 11h às 22h',
+  pixChave: '',
+  pixNome: 'Sabor da Casa'
 };
 
 const MENU_PADRAO = [
@@ -706,6 +738,7 @@ let carrinho = safeParse(localStorage.getItem('sabordacasa_cart'), []);
 let cupomAtivo = null;
 let currentUser = null;
 let pedidosCache = [];
+let pixAtual = '';
 
 function safeParse(str, fb){ try{ const v = str ? JSON.parse(str) : null; return (v===null||v===undefined) ? fb : v; }catch(e){ return fb; } }
 const brl = n => Number(n || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
@@ -745,6 +778,97 @@ async function buscarCEP() {
       }
     } catch(e) { console.error('Erro CEP', e); }
   }
+}
+
+/* ============= GERADOR DE PIX (BR CODE) ============= */
+function gerarPixPayload(chave, nome, cidade, valor, txid) {
+  // Limpa a chave (se for telefone, precisa do +55, se for CPF/CNPJ só números)
+  let chaveLimpa = chave.replace(/\D/g, '');
+  if (chave.includes('@')) chaveLimpa = chave;
+  else if (chaveLimpa.length === 11 && chaveLimpa.startsWith('1')) chaveLimpa = '+55' + chaveLimpa; // Celular
+  else if (chaveLimpa.length === 11) chaveLimpa = chaveLimpa; // CPF
+  else if (chaveLimpa.length === 14) chaveLimpa = chaveLimpa; // CNPJ
+  
+  // Formatação TLV (Tag, Length, Value) do Banco Central
+  const f = (id, val) => {
+    let str = val.toString();
+    if (id === '54') str = Number(val).toFixed(2); // Valor
+    const len = str.length.toString().padStart(2, '0');
+    return id + len + str;
+  };
+  
+  const nomeFormatado = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 25);
+  const cidadeFormatada = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 15);
+  
+  let payload = 
+    f('00', 'BR.GOV.BCB.PIX') + // Payload Format Indicator
+    f('26', f('00', 'br.gov.bcb.pix') + f('01', chaveLimpa)) + // Merchant Account Information
+    f('52', '0000') + // Merchant Category Code
+    f('53', '986') + // Transaction Currency (BRL)
+    f('54', valor.toFixed(2)) + // Transaction Amount
+    f('58', 'BR') + // Country Code
+    f('59', nomeFormatado) + // Merchant Name
+    f('60', cidadeFormatada) + // Merchant City
+    f('62', f('05', txid || '***')) + // Additional Data Field (TXID)
+    '6304'; // CRC16 placeholder
+    
+  // Cálculo do CRC16
+  let crc = 0xFFFF;
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+      else crc = crc << 1;
+    }
+  }
+  crc = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+  
+  return payload + crc;
+}
+
+function abrirModalPix() {
+  if (!CONFIG.pixChave) {
+    toast('⚠️ O lojista ainda não configurou a chave Pix.');
+    return;
+  }
+  if (subtotal() < CONFIG.pedidoMinimo) {
+    toast(`⚠️ Pedido mínimo ${brl(CONFIG.pedidoMinimo)}`);
+    return;
+  }
+
+  const total = totalAtual();
+  // Gera um ID curto para o Pix
+  const txid = 'PEDIDO' + Math.floor(Math.random() * 100000).toString().padStart(6, '0');
+  
+  pixAtual = gerarPixPayload(CONFIG.pixChave, CONFIG.pixNome || CONFIG.nomeLoja, 'SAO PAULO', total, txid);
+  
+  // Renderiza o QR Code
+  $('qrcode').innerHTML = '';
+  new QRCode($('qrcode'), {
+    text: pixAtual,
+    width: 200,
+    height: 200,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+  
+  $('pixCopiaCola').value = pixAtual;
+  $('modalPix').classList.add('on');
+}
+
+function fecharModalPix() {
+  $('modalPix').classList.remove('on');
+  // Se fechar, pergunta se quer enviar o pedido no WhatsApp com status "Aguardando Pix"
+  if (confirm('Você já realizou o pagamento?\n\nClique em OK para enviar o pedido para a cozinha (Aguardando confirmação do Pix) ou Cancelar para continuar no site.')) {
+    enviarPedido('Pix');
+  }
+}
+
+function copiarPix() {
+  navigator.clipboard.writeText(pixAtual).then(() => {
+    toast('✅ Código Pix copiado!');
+  });
 }
 
 // PWA
@@ -827,7 +951,6 @@ function adicionar(id){
   salvarCarrinho(); atualizarBadge(); renderCarrinho();
   toast(`✅ ${p.nome} adicionado`);
   
-  // UPSELL (Sugerir bebida se for marmita/prato)
   if ((p.cat === 'marmitas' || p.cat === 'executivos') && !p.upsell_feito) {
     const bebida = MENU.find(m => m.cat === 'bebidas');
     if (bebida && !carrinho.find(i => i.id === bebida.id)) {
@@ -912,7 +1035,8 @@ function renderCarrinho(){
       ${desc > 0 ? `<div style="color:var(--verde)"><span>Desconto</span><span>- ${brl(desc)}</span></div>` : ''}
       <div class="total"><span>Total</span><span>${brl(totalAtual())}</span></div>
     </div>
-    <button class="btn-final" onclick="enviarPedido()" ${subtotal() < CONFIG.pedidoMinimo ? 'disabled' : ''}>${subtotal() < CONFIG.pedidoMinimo ? `Faltam ${brl(CONFIG.pedidoMinimo - subtotal())}` : 'Finalizar no WhatsApp'}</button>`;
+    <button class="btn-final btn-pix" onclick="abrirModalPix()" ${subtotal() < CONFIG.pedidoMinimo ? 'disabled' : ''}>Pagar com Pix 🔒</button>
+    <button class="btn-final" onclick="enviarPedido('WhatsApp')" ${subtotal() < CONFIG.pedidoMinimo ? 'disabled' : ''}>Finalizar no WhatsApp</button>`;
 }
 
 function renderHistorico(){
@@ -924,7 +1048,7 @@ function renderHistorico(){
   }).join('')}</div>`;
 }
 
-function enviarPedido(){
+function enviarPedido(metodo) {
   const nome = $('nome').value.trim();
   const endereco = $('endereco').value.trim();
   const numero = $('numero').value.trim();
@@ -939,22 +1063,25 @@ function enviarPedido(){
   const linhas = carrinho.map(i => { const p = acharPrato(i.id); return p ? `• ${i.qty}x ${p.nome} — ${brl(p.preco * i.qty)}` : ''; }).filter(Boolean).join('\n');
 
   const itensSnap = carrinho.map(i => { const p = acharPrato(i.id); return { id: p.id, nome: p.nome, preco: p.preco, qty: i.qty }; });
+  const pagamentoSelecionado = $('pagamento').value;
+  const statusInicial = metodo === 'Pix' ? 'aguardando_pix' : 'novo';
+
   if (db){
     db.collection('pedidos').add({
       nome, telefone, endereco: endCompleto,
       itens: itensSnap,
       subtotal: subtotal(), frete: freteAtual(), desconto: descontoAtual(), total: totalAtual(),
-      pagamento: $('pagamento').value,
+      pagamento: metodo === 'Pix' ? 'Pix (Gerado)' : pagamentoSelecionado,
       obs: $('obs').value.trim(),
       cupom: cupomAtivo?.codigo || null,
-      status: 'novo',
+      status: statusInicial,
       criadoEm: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(err => console.error('Erro ao salvar pedido:', err));
   }
 
   let msg = `*NOVO PEDIDO — ${CONFIG.nomeLoja}*\n\n*Cliente:* ${nome}\n`;
   if (telefone) msg += `*Telefone:* ${telefone}\n`;
-  msg += `*Endereço:* ${endCompleto}\n*Pagamento:* ${$('pagamento').value}\n`;
+  msg += `*Endereço:* ${endCompleto}\n*Pagamento:* ${metodo === 'Pix' ? 'Pix (Enviarei o comprovante)' : pagamentoSelecionado}\n`;
   if (cupomAtivo) msg += `*Cupom:* ${cupomAtivo.codigo}\n`;
   msg += `\n*Itens:*\n${linhas}\n\nSubtotal: ${brl(subtotal())}\nEntrega: ${freteAtual()===0?'Grátis':brl(freteAtual())}\n`;
   if (descontoAtual() > 0) msg += `Desconto: -${brl(descontoAtual())}\n`;
@@ -962,8 +1089,16 @@ function enviarPedido(){
   if ($('obs').value.trim()) msg += `\n*Obs:* ${$('obs').value.trim()}`;
 
   salvarNoHistorico({ itens: carrinho.map(i => ({ id: i.id, qty: i.qty })), total: totalAtual(), nome, endereco: endCompleto });
-  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
-  toast('🚀 Abrindo WhatsApp…');
+  
+  if (metodo === 'WhatsApp') {
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+    toast('🚀 Abrindo WhatsApp…');
+  } else {
+    // Se for Pix, abre o WhatsApp também para enviar o comprovante
+    msg = `*COMPROVANTE PIX — ${CONFIG.nomeLoja}*\n\nSegue o comprovante do meu pedido no valor de *${brl(totalAtual())}*.\n\n${msg}`;
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+    toast('🚀 Envie o comprovante no WhatsApp…');
+  }
 }
 
 function abrirCarrinho(){ $('drawer').classList.add('on'); $('overlay').classList.add('on'); document.body.style.overflow = 'hidden'; renderCarrinho(); }
@@ -1079,6 +1214,7 @@ function renderPedidos(){
         <div class="order-actions">
           <button class="btn-status" style="background:#4a5568" onclick="imprimirPedido('${p.id}')">🖨️ Imprimir</button>
           ${p.telefone && p.status !== 'cancelado' ? `<button class="btn-status" style="background:#25D366" onclick="avisarWhatsApp('${p.id}')">💬 Avisar</button>` : ''}
+          ${p.status === 'aguardando_pix' ? `<button class="btn-status" style="background:#32BCAD" onclick="mudarStatus('${p.id}','novo')">💰 Confirmar Pix</button>` : ''}
           ${['novo'].includes(p.status) ? `<button class="btn-status" style="background:#3182ce" onclick="mudarStatus('${p.id}','preparando')">🍳 Preparar</button>` : ''}
           ${p.status === 'preparando' ? `<button class="btn-status" style="background:#9f7aea" onclick="mudarStatus('${p.id}','saiu')">🛵 Saiu p/ Entrega</button>` : ''}
           ${p.status === 'saiu' ? `<button class="btn-status" style="background:#38a169" onclick="mudarStatus('${p.id}','entregue')">✅ Entregue</button>` : ''}
@@ -1314,6 +1450,8 @@ function addNovaCategoria() {
 function preencherConfig() {
   $('cfg-nome').value = CONFIG.nomeLoja;
   $('cfg-whatsapp').value = CONFIG.whatsapp;
+  $('cfg-pix').value = CONFIG.pixChave || '';
+  $('cfg-pix-nome').value = CONFIG.pixNome || '';
   $('cfg-taxa').value = CONFIG.taxaEntrega;
   $('cfg-frete').value = CONFIG.freteGratis;
   $('cfg-minimo').value = CONFIG.pedidoMinimo;
@@ -1325,6 +1463,8 @@ function preencherConfig() {
 function salvarConfiguracoes() {
   CONFIG.nomeLoja = $('cfg-nome').value.trim() || 'Minha Loja';
   CONFIG.whatsapp = $('cfg-whatsapp').value.replace(/\D/g, '') || CONFIG_INICIAL.whatsapp;
+  CONFIG.pixChave = $('cfg-pix').value.trim();
+  CONFIG.pixNome = $('cfg-pix-nome').value.trim() || CONFIG.nomeLoja;
   CONFIG.taxaEntrega = parseNum($('cfg-taxa').value);
   CONFIG.freteGratis = parseNum($('cfg-frete').value);
   CONFIG.pedidoMinimo = parseNum($('cfg-minimo').value);
@@ -1427,7 +1567,7 @@ function atualizarStatus() {
 $('btnCart').addEventListener('click', abrirCarrinho);
 $('burger').addEventListener('click', () => $('links').classList.toggle('on'));
 document.querySelectorAll('#links a').forEach(a => a.addEventListener('click', () => $('links').classList.remove('on')));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCarrinho(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { fecharCarrinho(); fecharModalPix(); } });
 
 if (window.location.hash === '#admin') setTimeout(abrirAdmin, 500);
 
