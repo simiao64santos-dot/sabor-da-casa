@@ -21,11 +21,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
 <link rel="manifest" id="pwa-manifest">
-<!-- BIBLIOTECA PARA GERAR O QR CODE -->
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
 <style>
-/* O CSS PERMANECE O MESMO DA VERSÃO ANTERIOR, COM O ADICIONAL DO MODAL PIX */
 :root{--vermelho:#B23A2E;--vermelho-esc:#8E2B22;--amarelo:#F2B441;--creme:#FDF7EE;--creme2:#F6EBD9;--verde:#4A6B3E;--carvao:#2B2118;--cinza:#7A6C5D;--branco:#fff;--radius:18px;--shadow:0 14px 34px -16px rgba(43,33,24,.30)}
 body.dark { --creme:#121212; --creme2:#1e1e1e; --carvao:#f5f5f5; --branco:#2a2a2a; --cinza:#aaaaaa; background:var(--creme); color:var(--carvao); }
 body.dark header { background:rgba(18,18,18,.8); border-bottom-color:rgba(255,255,255,.1); }
@@ -229,13 +225,14 @@ footer .logo small{color:#8C7E6E}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-msg{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--cinza);font-size:.95rem}
 
-/* MODAL PIX */
+/* MODAL PIX ESTÁTICO */
 .modal-pix-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-pix-overlay.on{display:flex;}
 .modal-pix-box{background:#fff;border-radius:16px;padding:30px;width:min(400px,100%);text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.5);}
 .modal-pix-box h3{color:var(--carvao);font-family:'Inter',sans-serif;margin-bottom:10px;}
 .modal-pix-box p{color:var(--cinza);font-size:.9rem;margin-bottom:20px;}
 .qr-container{background:#fff; padding:10px; border-radius:10px; display:inline-block; margin-bottom:15px;}
+.qr-container img { width: 200px; height: 200px; object-fit: contain; }
 .pix-copia-cola{width:100%; padding:10px; border:1.6px solid #ccc; border-radius:8px; font-family:monospace; font-size:.8rem; resize:none; margin-bottom:10px; background:#f9f9f9; color:#333;}
 .btn-copiar{background:var(--vermelho); color:#fff; padding:12px; width:100%; border-radius:8px; font-weight:bold; font-size:1rem; margin-bottom:10px;}
 .btn-fechar-pix{background:#e2e8f0; color:#4a5568; padding:10px; width:100%; border-radius:8px; font-weight:bold;}
@@ -313,7 +310,7 @@ footer .logo small{color:#8C7E6E}
 .status-saiu{background:rgba(159,122,234,.15);color:#b794f4}
 .status-entregue{background:rgba(56,161,105,.15);color:#68d391}
 .status-cancelado{background:rgba(229,62,62,.15);color:#fc8181}
-.status-pago{background:rgba(50,188,173,.15);color:#32BCAD}
+.status-aguardando_pix{background:rgba(50,188,173,.15);color:#32BCAD}
 .btn-status{padding:8px 14px;border-radius:7px;font-size:.8rem;font-weight:600;border:none;cursor:pointer;transition:.2s;color:#fff}
 .btn-status:hover{opacity:.85;transform:translateY(-1px)}
 @media(max-width:768px){.admin-layout{flex-direction:column}.admin-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:0;border-right:none;border-bottom:1px solid #2d3748}.admin-nav-btn{padding:15px 20px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap}.admin-nav-btn.active{border-left:none;border-bottom-color:#F2B441}.admin-card{flex-direction:column;align-items:stretch}.admin-card .in-nome,.admin-card .in-preco,.admin-card .in-cat,.admin-card .in-desc,.admin-card .in-tag,.admin-card .in-img-wrapper{width:100%;max-width:100%}}
@@ -361,7 +358,6 @@ footer .logo small{color:#8C7E6E}
   </div>
 </header>
 
-<!-- HERO E DEMAIS SEÇÕES MANTIDAS -->
 <section class="hero">
   <div class="container hero-grid">
     <div>
@@ -532,12 +528,14 @@ footer .logo small{color:#8C7E6E}
   <div class="drawer-foot" id="drawerFoot" style="display:none"></div>
 </aside>
 
-<!-- MODAL DO PIX -->
+<!-- MODAL DO PIX ESTÁTICO -->
 <div id="modalPix" class="modal-pix-overlay">
   <div class="modal-pix-box">
     <h3>Pagamento via Pix</h3>
-    <p>Escaneie o QR Code ou copie o código abaixo no app do seu banco.</p>
-    <div class="qr-container" id="qrcode"></div>
+    <p>Aponte a câmera do seu banco para o QR Code abaixo ou copie a chave.</p>
+    <div class="qr-container">
+       <img id="imgPixEstatica" src="" alt="QR Code Pix">
+    </div>
     <textarea class="pix-copia-cola" id="pixCopiaCola" readonly rows="3"></textarea>
     <button class="btn-copiar" onclick="copiarPix()">📋 Copiar Código</button>
     <button class="btn-fechar-pix" onclick="fecharModalPix()">Fechar</button>
@@ -631,8 +629,6 @@ footer .logo small{color:#8C7E6E}
         <div class="config-grid">
           <div class="config-box"><label>Nome da Loja</label><input type="text" id="cfg-nome"></div>
           <div class="config-box"><label>WhatsApp (só dígitos com DDI)</label><input type="text" id="cfg-whatsapp" placeholder="5511987654321"></div>
-          <div class="config-box"><label>Chave Pix (CPF, CNPJ, E-mail ou Celular)</label><input type="text" id="cfg-pix" placeholder="Ex: 11999999999"></div>
-          <div class="config-box"><label>Nome do Recebedor (Pix)</label><input type="text" id="cfg-pix-nome" placeholder="Ex: Sabor da Casa"></div>
           <div class="config-box"><label>Taxa de Entrega (R$)</label><input type="number" id="cfg-taxa" step="0.01"></div>
           <div class="config-box"><label>Valor p/ Frete Grátis (R$)</label><input type="number" id="cfg-frete" step="0.01"></div>
           <div class="config-box"><label>Pedido Mínimo (R$)</label><input type="number" id="cfg-minimo" step="0.01"></div>
@@ -660,6 +656,13 @@ footer .logo small{color:#8C7E6E}
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
+/* ====================================================================
+   ⚠️ COLE A SUA CHAVE PIX E O LINK DA SUA IMAGEM AQUI EMBAIXO ⚠️
+   ==================================================================== */
+const PIX_ESTATICO_CHAVE = "00020126580014br.gov.bcb.pix01368002f088-b8b6-4aa6-8f35-b647dfbb34505204000053039865802BR5915Simiao De Jesus6009Sao Paulo62240520daqr176404841889527763041372";
+const PIX_ESTATICO_IMG = "https://discord.com/channels/@me/1556441310058258472/1573907358730551316";
+/* ==================================================================== */
+
 const firebaseConfig = {
   apiKey: "AIzaSyAuztBaUmLXWDmU5_aFCV-0ODatekxnp9M",
   authDomain: "sabor-da-casa-ade3d.firebaseapp.com",
@@ -688,9 +691,7 @@ const CONFIG_INICIAL = {
   pedidoMinimo:20.00,
   email:'contato@sabordacasa.com.br',
   endereco:'Rua das Acácias, 128 — Centro',
-  horario:'Ter a Dom · 11h às 22h',
-  pixChave: '',
-  pixNome: 'Sabor da Casa'
+  horario:'Ter a Dom · 11h às 22h'
 };
 
 const MENU_PADRAO = [
@@ -780,55 +781,14 @@ async function buscarCEP() {
   }
 }
 
-/* ============= GERADOR DE PIX (BR CODE) ============= */
-function gerarPixPayload(chave, nome, cidade, valor, txid) {
-  // Limpa a chave (se for telefone, precisa do +55, se for CPF/CNPJ só números)
-  let chaveLimpa = chave.replace(/\D/g, '');
-  if (chave.includes('@')) chaveLimpa = chave;
-  else if (chaveLimpa.length === 11 && chaveLimpa.startsWith('1')) chaveLimpa = '+55' + chaveLimpa; // Celular
-  else if (chaveLimpa.length === 11) chaveLimpa = chaveLimpa; // CPF
-  else if (chaveLimpa.length === 14) chaveLimpa = chaveLimpa; // CNPJ
-  
-  // Formatação TLV (Tag, Length, Value) do Banco Central
-  const f = (id, val) => {
-    let str = val.toString();
-    if (id === '54') str = Number(val).toFixed(2); // Valor
-    const len = str.length.toString().padStart(2, '0');
-    return id + len + str;
-  };
-  
-  const nomeFormatado = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 25);
-  const cidadeFormatada = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 15);
-  
-  let payload = 
-    f('00', 'BR.GOV.BCB.PIX') + // Payload Format Indicator
-    f('26', f('00', 'br.gov.bcb.pix') + f('01', chaveLimpa)) + // Merchant Account Information
-    f('52', '0000') + // Merchant Category Code
-    f('53', '986') + // Transaction Currency (BRL)
-    f('54', valor.toFixed(2)) + // Transaction Amount
-    f('58', 'BR') + // Country Code
-    f('59', nomeFormatado) + // Merchant Name
-    f('60', cidadeFormatada) + // Merchant City
-    f('62', f('05', txid || '***')) + // Additional Data Field (TXID)
-    '6304'; // CRC16 placeholder
-    
-  // Cálculo do CRC16
-  let crc = 0xFFFF;
-  for (let i = 0; i < payload.length; i++) {
-    crc ^= payload.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
-      else crc = crc << 1;
-    }
-  }
-  crc = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
-  
-  return payload + crc;
-}
-
+/* ============= PIX ESTÁTICO ============= */
 function abrirModalPix() {
-  if (!CONFIG.pixChave) {
+  if (!PIX_ESTATICO_CHAVE || PIX_ESTATICO_CHAVE === "COLE_A_CHAVE_COPIA_E_COLA_AQUI") {
     toast('⚠️ O lojista ainda não configurou a chave Pix.');
+    return;
+  }
+  if (!PIX_ESTATICO_IMG || PIX_ESTATICO_IMG === "COLE_O_LINK_DA_SUA_IMAGEM_AQUI") {
+    toast('⚠️ O lojista ainda não configurou a imagem do QR Code.');
     return;
   }
   if (subtotal() < CONFIG.pedidoMinimo) {
@@ -836,30 +796,23 @@ function abrirModalPix() {
     return;
   }
 
-  const total = totalAtual();
-  // Gera um ID curto para o Pix
-  const txid = 'PEDIDO' + Math.floor(Math.random() * 100000).toString().padStart(6, '0');
-  
-  pixAtual = gerarPixPayload(CONFIG.pixChave, CONFIG.pixNome || CONFIG.nomeLoja, 'SAO PAULO', total, txid);
-  
-  // Renderiza o QR Code
-  $('qrcode').innerHTML = '';
-  new QRCode($('qrcode'), {
-    text: pixAtual,
-    width: 200,
-    height: 200,
-    colorDark : "#000000",
-    colorLight : "#ffffff",
-    correctLevel : QRCode.CorrectLevel.H
-  });
-  
+  // Configura a imagem estática
+  const imgEl = document.getElementById('imgPixEstatica');
+  if (imgEl) imgEl.src = PIX_ESTATICO_IMG;
+
+  // Configura o texto "Copia e Cola"
+  pixAtual = PIX_ESTATICO_CHAVE;
   $('pixCopiaCola').value = pixAtual;
+  
+  // Abre o modal
   $('modalPix').classList.add('on');
+  
+  // Avisa o cliente que ele precisa digitar o valor
+  toast(`⚠️ Lembre-se de digitar o valor de ${brl(totalAtual())} no seu banco.`);
 }
 
 function fecharModalPix() {
   $('modalPix').classList.remove('on');
-  // Se fechar, pergunta se quer enviar o pedido no WhatsApp com status "Aguardando Pix"
   if (confirm('Você já realizou o pagamento?\n\nClique em OK para enviar o pedido para a cozinha (Aguardando confirmação do Pix) ou Cancelar para continuar no site.')) {
     enviarPedido('Pix');
   }
@@ -1071,7 +1024,7 @@ function enviarPedido(metodo) {
       nome, telefone, endereco: endCompleto,
       itens: itensSnap,
       subtotal: subtotal(), frete: freteAtual(), desconto: descontoAtual(), total: totalAtual(),
-      pagamento: metodo === 'Pix' ? 'Pix (Gerado)' : pagamentoSelecionado,
+      pagamento: metodo === 'Pix' ? 'Pix (Enviado)' : pagamentoSelecionado,
       obs: $('obs').value.trim(),
       cupom: cupomAtivo?.codigo || null,
       status: statusInicial,
@@ -1094,7 +1047,6 @@ function enviarPedido(metodo) {
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
     toast('🚀 Abrindo WhatsApp…');
   } else {
-    // Se for Pix, abre o WhatsApp também para enviar o comprovante
     msg = `*COMPROVANTE PIX — ${CONFIG.nomeLoja}*\n\nSegue o comprovante do meu pedido no valor de *${brl(totalAtual())}*.\n\n${msg}`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
     toast('🚀 Envie o comprovante no WhatsApp…');
@@ -1450,8 +1402,6 @@ function addNovaCategoria() {
 function preencherConfig() {
   $('cfg-nome').value = CONFIG.nomeLoja;
   $('cfg-whatsapp').value = CONFIG.whatsapp;
-  $('cfg-pix').value = CONFIG.pixChave || '';
-  $('cfg-pix-nome').value = CONFIG.pixNome || '';
   $('cfg-taxa').value = CONFIG.taxaEntrega;
   $('cfg-frete').value = CONFIG.freteGratis;
   $('cfg-minimo').value = CONFIG.pedidoMinimo;
@@ -1463,8 +1413,6 @@ function preencherConfig() {
 function salvarConfiguracoes() {
   CONFIG.nomeLoja = $('cfg-nome').value.trim() || 'Minha Loja';
   CONFIG.whatsapp = $('cfg-whatsapp').value.replace(/\D/g, '') || CONFIG_INICIAL.whatsapp;
-  CONFIG.pixChave = $('cfg-pix').value.trim();
-  CONFIG.pixNome = $('cfg-pix-nome').value.trim() || CONFIG.nomeLoja;
   CONFIG.taxaEntrega = parseNum($('cfg-taxa').value);
   CONFIG.freteGratis = parseNum($('cfg-frete').value);
   CONFIG.pedidoMinimo = parseNum($('cfg-minimo').value);
