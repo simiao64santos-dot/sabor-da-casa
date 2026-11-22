@@ -303,7 +303,7 @@ footer .logo small{color:#8C7E6E}
     </div>
     <div class="topbar-left">
       <span>📞 <span id="txt-telefone">(11) 98765-4321</span></span>
-      <span>📍 Rua das Acácias, 128 — Centro</span>
+      <span>📍 <span id="txt-endereco-top">Rua das Acácias, 128 — Centro</span></span>
     </div>
   </div>
 </div>
@@ -447,8 +447,8 @@ footer .logo small{color:#8C7E6E}
         <h3>📞 Fale com a gente</h3>
         <p>Atendimento de terça a domingo.</p>
         <div class="contato-linha"><span class="ico">📱</span><div><b id="txt-whatsapp-link">(11) 98765-4321</b><br><small style="color:var(--cinza)">WhatsApp e telefone</small></div></div>
-        <div class="contato-linha"><span class="ico">✉️</span><div><b>contato@sabordacasa.com.br</b><br><small style="color:var(--cinza)">Pedidos e parcerias</small></div></div>
-        <div class="contato-linha"><span class="ico">📍</span><div><b>Rua das Acácias, 128</b><br><small style="color:var(--cinza)">Centro — retirada no balcão</small></div></div>
+        <div class="contato-linha"><span class="ico">✉️</span><div><b id="txt-email-info">contato@sabordacasa.com.br</b><br><small style="color:var(--cinza)">Pedidos e parcerias</small></div></div>
+        <div class="contato-linha"><span class="ico">📍</span><div><b id="txt-endereco-info">Rua das Acácias, 128</b><br><small style="color:var(--cinza)">Centro — retirada no balcão</small></div></div>
       </div>
     </div>
   </div>
@@ -477,9 +477,9 @@ footer .logo small{color:#8C7E6E}
         <h4>Contato</h4>
         <ul>
           <li><a href="tel:+5511987654321" id="link-tel-footer">(11) 98765-4321</a></li>
-          <li><a href="mailto:contato@sabordacasa.com.br">contato@sabordacasa.com.br</a></li>
-          <li>Rua das Acácias, 128 — Centro</li>
-          <li>Ter a Dom · 11h às 22h</li>
+          <li><a href="mailto:contato@sabordacasa.com.br" id="link-email-footer">contato@sabordacasa.com.br</a></li>
+          <li id="txt-endereco-footer">Rua das Acácias, 128 — Centro</li>
+          <li id="txt-horario-footer">Ter a Dom · 11h às 22h</li>
         </ul>
       </div>
     </div>
@@ -587,6 +587,9 @@ footer .logo small{color:#8C7E6E}
           <div class="config-box"><label>Taxa de Entrega (R$)</label><input type="number" id="cfg-taxa" step="0.01"></div>
           <div class="config-box"><label>Valor p/ Frete Grátis (R$)</label><input type="number" id="cfg-frete" step="0.01"></div>
           <div class="config-box"><label>Pedido Mínimo (R$)</label><input type="number" id="cfg-minimo" step="0.01"></div>
+          <div class="config-box"><label>E-mail de Contato</label><input type="text" id="cfg-email" placeholder="contato@loja.com"></div>
+          <div class="config-box"><label>Endereço Completo</label><input type="text" id="cfg-endereco" placeholder="Rua..., Número - Bairro"></div>
+          <div class="config-box"><label>Horário de Funcionamento</label><input type="text" id="cfg-horario" placeholder="Ter a Dom · 11h às 22h"></div>
         </div>
         <div style="margin-top:25px"><button class="btn-admin btn-save" onclick="salvarConfiguracoes()">💾 Salvar</button></div>
       </section>
@@ -628,7 +631,17 @@ try {
   db.settings({ experimentalForceLongPolling: true });
 } catch (e) { console.log("Firebase não inicializado.", e); }
 
-const CONFIG_INICIAL = { nomeLoja:'Sabor da Casa', whatsapp:'5511987654321', taxaEntrega:6.00, freteGratis:80.00, pedidoMinimo:20.00 };
+const CONFIG_INICIAL = { 
+  nomeLoja:'Sabor da Casa', 
+  whatsapp:'5511987654321', 
+  taxaEntrega:6.00, 
+  freteGratis:80.00, 
+  pedidoMinimo:20.00,
+  email:'contato@sabordacasa.com.br',
+  endereco:'Rua das Acácias, 128 — Centro',
+  horario:'Ter a Dom · 11h às 22h'
+};
+
 const MENU_PADRAO = [
   { id:1,cat:'marmitas',nome:'Marmita P',desc:'Arroz, feijão, 1 mistura, salada e farofa',preco:22.00,emoji:'🍱',img:'' },
   { id:2,cat:'marmitas',nome:'Marmita M',desc:'Arroz, feijão, 2 misturas, salada e farofa',preco:28.00,emoji:'🍛',img:'',tag:'Mais pedida',destaque:true },
@@ -699,6 +712,16 @@ function aplicarConfiguracoes() {
   document.querySelectorAll('#txt-nome-loja, #txt-nome-loja-footer, #txt-copy-nome').forEach(el => el.textContent = CONFIG.nomeLoja);
   const fone = formatarTelefone(CONFIG.whatsapp);
   document.querySelectorAll('#txt-telefone, #txt-whatsapp-link, #link-tel-footer').forEach(el => el.textContent = fone);
+  
+  if($('txt-endereco-top')) $('txt-endereco-top').textContent = CONFIG.endereco;
+  if($('txt-endereco-info')) $('txt-endereco-info').textContent = CONFIG.endereco;
+  if($('txt-endereco-footer')) $('txt-endereco-footer').textContent = CONFIG.endereco;
+  
+  if($('txt-email-info')) $('txt-email-info').textContent = CONFIG.email;
+  if($('link-email-footer')) { $('link-email-footer').textContent = CONFIG.email; $('link-email-footer').href = `mailto:${CONFIG.email}`; }
+  
+  if($('txt-horario-footer')) $('txt-horario-footer').textContent = CONFIG.horario;
+
   $('txt-taxa-entrega').textContent = brl(CONFIG.taxaEntrega);
   $('txt-frete-gratis').textContent = brl(CONFIG.freteGratis);
   $('link-whatsapp-float').href = `https://wa.me/${CONFIG.whatsapp}`;
@@ -1181,6 +1204,9 @@ function preencherConfig() {
   $('cfg-taxa').value = CONFIG.taxaEntrega;
   $('cfg-frete').value = CONFIG.freteGratis;
   $('cfg-minimo').value = CONFIG.pedidoMinimo;
+  $('cfg-email').value = CONFIG.email;
+  $('cfg-endereco').value = CONFIG.endereco;
+  $('cfg-horario').value = CONFIG.horario;
 }
 
 function salvarConfiguracoes() {
@@ -1189,9 +1215,14 @@ function salvarConfiguracoes() {
   CONFIG.taxaEntrega = parseNum($('cfg-taxa').value);
   CONFIG.freteGratis = parseNum($('cfg-frete').value);
   CONFIG.pedidoMinimo = parseNum($('cfg-minimo').value);
+  CONFIG.email = $('cfg-email').value.trim();
+  CONFIG.endereco = $('cfg-endereco').value.trim();
+  CONFIG.horario = $('cfg-horario').value.trim();
+
   localStorage.setItem('menu_custom', JSON.stringify(MENU));
   localStorage.setItem('config_custom', JSON.stringify(CONFIG));
   localStorage.setItem('cats_custom', JSON.stringify(CATEGORIAS));
+  
   aplicarConfiguracoes();
   renderDestaques();
   renderChips();
