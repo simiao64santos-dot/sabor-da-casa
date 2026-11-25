@@ -1,4 +1,4 @@
-const CACHE = 'sabor-da-casa-v8';
+const CACHE = 'sabor-da-casa-v9';
 const ASSETS = [
   './',
   './index.html'
