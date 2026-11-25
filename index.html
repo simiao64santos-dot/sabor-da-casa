@@ -21,7 +21,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
 <link rel="manifest" id="pwa-manifest">
-<!-- BIBLIOTECA PARA GERAR O QR CODE -->
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
@@ -379,7 +378,7 @@ footer .logo small{color:#8C7E6E}
       <div class="foto hero-foto" id="hero-foto"><span class="emoji">🍛</span></div>
       <div class="float-card">
         <span class="ico">🔥</span>
-        <div><b>Prato do dia</b><small>Feijoada completa — R$ 39</small></div>
+        <div><b>Prato do dia</b><small id="txt-prato-dia">Feijoada completa — R$ 39</small></div>
       </div>
     </div>
   </div>
@@ -639,6 +638,7 @@ footer .logo small{color:#8C7E6E}
           <div class="config-box"><label>E-mail de Contato</label><input type="text" id="cfg-email"></div>
           <div class="config-box"><label>Endereço Completo</label><input type="text" id="cfg-endereco"></div>
           <div class="config-box"><label>Horário de Funcionamento</label><input type="text" id="cfg-horario"></div>
+          <div class="config-box"><label>Texto do Prato do Dia (Card Flutuante)</label><input type="text" id="cfg-prato-dia" placeholder="Ex: Feijoada completa — R$ 39"></div>
         </div>
         <div style="margin-top:25px"><button class="btn-admin btn-save" onclick="salvarConfiguracoes()">💾 Salvar</button></div>
       </section>
@@ -694,7 +694,8 @@ const CONFIG_INICIAL = {
   pedidoMinimo:20.00,
   email:'contato@sabordacasa.com.br',
   endereco:'Rua das Acácias, 128 — Centro',
-  horario:'Ter a Dom · 11h às 22h'
+  horario:'Ter a Dom · 11h às 22h',
+  pratoDia: 'Feijoada completa — R$ 39'
 };
 
 const MENU_PADRAO = [
@@ -792,7 +793,6 @@ function abrirModalPix() {
 
   $('valorPixModal').textContent = brl(totalAtual());
 
-  // Gera o QR Code apontando para o link do Nubank
   $('qrcodeLinkPix').innerHTML = '';
   new QRCode($('qrcodeLinkPix'), {
     text: LINK_PIX_NUBANK,
@@ -838,6 +838,7 @@ function aplicarConfiguracoes() {
   if($('link-email-footer')) { $('link-email-footer').textContent = CONFIG.email; $('link-email-footer').href = `mailto:${CONFIG.email}`; }
   
   if($('txt-horario-footer')) $('txt-horario-footer').textContent = CONFIG.horario;
+  if($('txt-prato-dia')) $('txt-prato-dia').textContent = CONFIG.pratoDia || 'Prato do dia';
 
   $('txt-taxa-entrega').textContent = brl(CONFIG.taxaEntrega);
   $('txt-frete-gratis').textContent = brl(CONFIG.freteGratis);
@@ -1402,6 +1403,7 @@ function preencherConfig() {
   $('cfg-email').value = CONFIG.email;
   $('cfg-endereco').value = CONFIG.endereco;
   $('cfg-horario').value = CONFIG.horario;
+  $('cfg-prato-dia').value = CONFIG.pratoDia || '';
 }
 
 function salvarConfiguracoes() {
@@ -1413,6 +1415,7 @@ function salvarConfiguracoes() {
   CONFIG.email = $('cfg-email').value.trim();
   CONFIG.endereco = $('cfg-endereco').value.trim();
   CONFIG.horario = $('cfg-horario').value.trim();
+  CONFIG.pratoDia = $('cfg-prato-dia').value.trim();
 
   localStorage.setItem('menu_custom', JSON.stringify(MENU));
   localStorage.setItem('config_custom', JSON.stringify(CONFIG));
