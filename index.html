@@ -21,6 +21,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3014/3014563.png">
 <link rel="manifest" id="pwa-manifest">
+<!-- BIBLIOTECA PARA GERAR O QR CODE -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 <style>
 :root{--vermelho:#B23A2E;--vermelho-esc:#8E2B22;--amarelo:#F2B441;--creme:#FDF7EE;--creme2:#F6EBD9;--verde:#4A6B3E;--carvao:#2B2118;--cinza:#7A6C5D;--branco:#fff;--radius:18px;--shadow:0 14px 34px -16px rgba(43,33,24,.30)}
 body.dark { --creme:#121212; --creme2:#1e1e1e; --carvao:#f5f5f5; --branco:#2a2a2a; --cinza:#aaaaaa; background:var(--creme); color:var(--carvao); }
@@ -202,8 +205,8 @@ footer .logo small{color:#8C7E6E}
 .btn-final{width:100%;background:#25D366;color:#06341A;padding:16px;border-radius:13px;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;gap:10px;transition:.16s;margin-bottom:10px;}
 .btn-final:hover{background:#1FBE5B;transform:translateY(-1px)}
 .btn-final:disabled{background:#D8D0C4;color:#8C8172;cursor:not-allowed;transform:none}
-.btn-pix{background:#32BCAD;color:#fff;}
-.btn-pix:hover{background:#289e91;}
+.btn-pix{background:#805ad5;color:#fff;}
+.btn-pix:hover{background:#6b46c1;}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,140%);background:var(--carvao);color:var(--creme);padding:14px 24px;border-radius:999px;font-size:.9rem;font-weight:600;z-index:200;box-shadow:0 18px 40px -18px rgba(0,0,0,.7);transition:transform .32s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:10px;max-width:90vw}
 .toast.on{transform:translate(-50%,0)}
 .wpp-float{position:fixed;right:20px;bottom:20px;z-index:70;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 14px 30px -10px rgba(37,211,102,.75);transition:transform .2s}
@@ -225,15 +228,13 @@ footer .logo small{color:#8C7E6E}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-msg{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--cinza);font-size:.95rem}
 
-/* MODAL PIX ESTÁTICO */
+/* MODAL PIX */
 .modal-pix-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-pix-overlay.on{display:flex;}
 .modal-pix-box{background:#fff;border-radius:16px;padding:30px;width:min(400px,100%);text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.5);}
 .modal-pix-box h3{color:var(--carvao);font-family:'Inter',sans-serif;margin-bottom:10px;}
 .modal-pix-box p{color:var(--cinza);font-size:.9rem;margin-bottom:20px;}
-.qr-container{background:#fff; padding:10px; border-radius:10px; display:inline-block; margin-bottom:15px;}
-.qr-container img { width: 200px; height: 200px; object-fit: contain; }
-.pix-copia-cola{width:100%; padding:10px; border:1.6px solid #ccc; border-radius:8px; font-family:monospace; font-size:.8rem; resize:none; margin-bottom:10px; background:#f9f9f9; color:#333;}
+.qr-container{background:#fff; padding:10px; border-radius:10px; display:inline-block; margin-bottom:15px; min-height:200px;}
 .btn-copiar{background:var(--vermelho); color:#fff; padding:12px; width:100%; border-radius:8px; font-weight:bold; font-size:1rem; margin-bottom:10px;}
 .btn-fechar-pix{background:#e2e8f0; color:#4a5568; padding:10px; width:100%; border-radius:8px; font-weight:bold;}
 
@@ -528,16 +529,19 @@ footer .logo small{color:#8C7E6E}
   <div class="drawer-foot" id="drawerFoot" style="display:none"></div>
 </aside>
 
-<!-- MODAL DO PIX ESTÁTICO -->
+<!-- MODAL DO PIX NUBANK -->
 <div id="modalPix" class="modal-pix-overlay">
   <div class="modal-pix-box">
     <h3>Pagamento via Pix</h3>
-    <p>Aponte a câmera do seu banco para o QR Code abaixo ou copie a chave.</p>
-    <div class="qr-container">
-       <img id="imgPixEstatica" src="" alt="QR Code Pix">
-    </div>
-    <textarea class="pix-copia-cola" id="pixCopiaCola" readonly rows="3"></textarea>
-    <button class="btn-copiar" onclick="copiarPix()">📋 Copiar Código</button>
+    <p>Escaneie o QR Code abaixo com a câmera do seu celular ou clique no botão para abrir o Nubank.</p>
+    
+    <div class="qr-container" id="qrcodeLinkPix"></div>
+    
+    <p style="font-size:1.1rem; font-weight:bold; color:var(--vermelho); margin-bottom:10px;">
+      Valor: <span id="valorPixModal"></span>
+    </p>
+
+    <button class="btn-copiar" style="background:#805ad5;" onclick="abrirLinkNubank()">💜 Abrir App do Nubank</button>
     <button class="btn-fechar-pix" onclick="fecharModalPix()">Fechar</button>
   </div>
 </div>
@@ -657,10 +661,9 @@ footer .logo small{color:#8C7E6E}
 
 <script>
 /* ====================================================================
-   ⚠️ COLE A SUA CHAVE PIX E O LINK DA SUA IMAGEM AQUI EMBAIXO ⚠️
+   ⚠️ LINK DO PIX DO NUBANK ⚠️
    ==================================================================== */
-const PIX_ESTATICO_CHAVE = "00020126580014br.gov.bcb.pix01368002f088-b8b6-4aa6-8f35-b647dfbb34505204000053039865802BR5915Simiao De Jesus6009Sao Paulo62240520daqr176404841889527763041372";
-const PIX_ESTATICO_IMG = "https://discord.com/channels/@me/1556441310058258472/1573907358730551316";
+const LINK_PIX_NUBANK = "https://nubank.com.br/cobrar/q4ol6/6b06ecd5-f488-419b-862e-73c48652130b";
 /* ==================================================================== */
 
 const firebaseConfig = {
@@ -739,7 +742,6 @@ let carrinho = safeParse(localStorage.getItem('sabordacasa_cart'), []);
 let cupomAtivo = null;
 let currentUser = null;
 let pedidosCache = [];
-let pixAtual = '';
 
 function safeParse(str, fb){ try{ const v = str ? JSON.parse(str) : null; return (v===null||v===undefined) ? fb : v; }catch(e){ return fb; } }
 const brl = n => Number(n || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
@@ -781,47 +783,39 @@ async function buscarCEP() {
   }
 }
 
-/* ============= PIX ESTÁTICO ============= */
+/* ============= PIX NUBANK ============= */
 function abrirModalPix() {
-  if (!PIX_ESTATICO_CHAVE || PIX_ESTATICO_CHAVE === "COLE_A_CHAVE_COPIA_E_COLA_AQUI") {
-    toast('⚠️ O lojista ainda não configurou a chave Pix.');
-    return;
-  }
-  if (!PIX_ESTATICO_IMG || PIX_ESTATICO_IMG === "COLE_O_LINK_DA_SUA_IMAGEM_AQUI") {
-    toast('⚠️ O lojista ainda não configurou a imagem do QR Code.');
-    return;
-  }
   if (subtotal() < CONFIG.pedidoMinimo) {
     toast(`⚠️ Pedido mínimo ${brl(CONFIG.pedidoMinimo)}`);
     return;
   }
 
-  // Configura a imagem estática
-  const imgEl = document.getElementById('imgPixEstatica');
-  if (imgEl) imgEl.src = PIX_ESTATICO_IMG;
+  $('valorPixModal').textContent = brl(totalAtual());
 
-  // Configura o texto "Copia e Cola"
-  pixAtual = PIX_ESTATICO_CHAVE;
-  $('pixCopiaCola').value = pixAtual;
-  
-  // Abre o modal
+  // Gera o QR Code apontando para o link do Nubank
+  $('qrcodeLinkPix').innerHTML = '';
+  new QRCode($('qrcodeLinkPix'), {
+    text: LINK_PIX_NUBANK,
+    width: 200,
+    height: 200,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+
   $('modalPix').classList.add('on');
-  
-  // Avisa o cliente que ele precisa digitar o valor
-  toast(`⚠️ Lembre-se de digitar o valor de ${brl(totalAtual())} no seu banco.`);
+  toast(`⚠️ Lembre-se de digitar o valor de ${brl(totalAtual())} no Nubank.`);
 }
 
 function fecharModalPix() {
   $('modalPix').classList.remove('on');
-  if (confirm('Você já realizou o pagamento?\n\nClique em OK para enviar o pedido para a cozinha (Aguardando confirmação do Pix) ou Cancelar para continuar no site.')) {
+  if (confirm('Você já realizou o pagamento no Nubank?\n\nClique em OK para enviar o pedido para a cozinha (Aguardando confirmação do Pix) ou Cancelar para continuar no site.')) {
     enviarPedido('Pix');
   }
 }
 
-function copiarPix() {
-  navigator.clipboard.writeText(pixAtual).then(() => {
-    toast('✅ Código Pix copiado!');
-  });
+function abrirLinkNubank() {
+  window.open(LINK_PIX_NUBANK, '_blank');
 }
 
 // PWA
@@ -1024,7 +1018,7 @@ function enviarPedido(metodo) {
       nome, telefone, endereco: endCompleto,
       itens: itensSnap,
       subtotal: subtotal(), frete: freteAtual(), desconto: descontoAtual(), total: totalAtual(),
-      pagamento: metodo === 'Pix' ? 'Pix (Enviado)' : pagamentoSelecionado,
+      pagamento: metodo === 'Pix' ? 'Pix (Nubank)' : pagamentoSelecionado,
       obs: $('obs').value.trim(),
       cupom: cupomAtivo?.codigo || null,
       status: statusInicial,
@@ -1034,7 +1028,7 @@ function enviarPedido(metodo) {
 
   let msg = `*NOVO PEDIDO — ${CONFIG.nomeLoja}*\n\n*Cliente:* ${nome}\n`;
   if (telefone) msg += `*Telefone:* ${telefone}\n`;
-  msg += `*Endereço:* ${endCompleto}\n*Pagamento:* ${metodo === 'Pix' ? 'Pix (Enviarei o comprovante)' : pagamentoSelecionado}\n`;
+  msg += `*Endereço:* ${endCompleto}\n*Pagamento:* ${metodo === 'Pix' ? 'Pix (Nubank)' : pagamentoSelecionado}\n`;
   if (cupomAtivo) msg += `*Cupom:* ${cupomAtivo.codigo}\n`;
   msg += `\n*Itens:*\n${linhas}\n\nSubtotal: ${brl(subtotal())}\nEntrega: ${freteAtual()===0?'Grátis':brl(freteAtual())}\n`;
   if (descontoAtual() > 0) msg += `Desconto: -${brl(descontoAtual())}\n`;
